@@ -1,0 +1,9 @@
+[package]
+name = "nativefier"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+wry = "0.20.0"
+toml = "0.5.9"
+# clap = { "version" = "3.2.16", features = ["derive"] }
