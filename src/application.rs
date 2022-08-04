@@ -1,30 +1,38 @@
-use std::{
-    io::Read,
-};
+use std::io::Read;
 
 use wry::{
     application::{
         self,
+        dpi::{PhysicalSize, Size},
         event::{Event, WindowEvent},
         event_loop::ControlFlow,
+        menu::MenuBar,
         window::Icon,
-        window::{WindowBuilder, self}, dpi::{Size, PhysicalSize}, menu::MenuBar,
+        window::{self, WindowBuilder},
     },
     webview::WebViewBuilder,
 };
 
-use crate::nativefy::{def_name};
+use crate::nativefy::def_name;
 
-const fn def_false() -> bool { false }
-const fn def_true() -> bool { true }
-pub const fn def_height() -> u32 { 800 }
-pub const fn def_width() -> u32 { 1280 }
+const fn def_false() -> bool {
+    false
+}
+const fn def_true() -> bool {
+    true
+}
+pub const fn def_height() -> u32 {
+    800
+}
+pub const fn def_width() -> u32 {
+    1280
+}
 
 #[derive(serde::Deserialize, Debug)]
 pub struct AppSettings<'i> {
     // Creation Options
     target_url: &'i str,
-    
+
     icon: Option<&'i str>,
 
     #[serde(default = "def_name")]
@@ -33,27 +41,27 @@ pub struct AppSettings<'i> {
     // Window Options
     #[serde(default = "def_false")]
     always_on_top: bool,
-    
+
     #[serde(default = "def_false")]
     fullscreen: bool,
-    
+
     #[serde(default = "def_height")]
     height: u32,
-    
+
     #[serde(default = "def_width")]
     width: u32,
-    
+
     #[serde(default = "def_false")]
     hide_window_frame: bool,
-    
+
     #[serde(default = "def_false")]
     show_menu_bar: bool,
-    
+
     #[serde(default = "u32::max_value")]
     max_width: u32,
     #[serde(default = "u32::max_value")]
     max_height: u32,
-    
+
     #[serde(default = "u32::min_value")]
     min_width: u32,
     #[serde(default = "u32::min_value")]
@@ -71,16 +79,29 @@ pub fn run(mut file: std::fs::File) -> wry::Result<()> {
     let window = WindowBuilder::new()
         .with_title(settings.name)
         .with_always_on_top(settings.always_on_top)
-        .with_fullscreen(settings.fullscreen.then_some(window::Fullscreen::Borderless(None)))
-        .with_inner_size(Size::Physical(PhysicalSize::new(settings.width, settings.height)))
-        .with_max_inner_size(Size::Physical(PhysicalSize::new(settings.max_width, settings.max_height)))
-        .with_min_inner_size(Size::Physical(PhysicalSize::new(settings.min_width, settings.min_height)))
+        .with_fullscreen(
+            settings
+                .fullscreen
+                .then_some(window::Fullscreen::Borderless(None)),
+        )
+        .with_inner_size(Size::Physical(PhysicalSize::new(
+            settings.width,
+            settings.height,
+        )))
+        .with_max_inner_size(Size::Physical(PhysicalSize::new(
+            settings.max_width,
+            settings.max_height,
+        )))
+        .with_min_inner_size(Size::Physical(PhysicalSize::new(
+            settings.min_width,
+            settings.min_height,
+        )))
         .with_decorations(!settings.hide_window_frame)
         .with_menu(MenuBar::new())
         .build(&event_loop)?;
-    
+
     window.set_menu(settings.show_menu_bar.then_some(MenuBar::new()));
-    
+
     if let Some(path) = settings.icon {
         let icon = std::fs::read(path).unwrap_or_exit(format!("Icon '{path}' does not exist. Please change the 'icon' option in 'naty.toml' or remove it completely."));
 
