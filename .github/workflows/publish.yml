@@ -15,16 +15,16 @@ jobs:
         include:
           - name: linux
             os: ubuntu-latest
-            artifact_name: target/release/hunt
-            asset_name: hunt-linux
+            artifact_name: target/release/naty
+            asset_name: naty-linux
           - name: windows
             os: windows-latest
-            artifact_name: target/release/hunt.exe
-            asset_name: hunt-windows
+            artifact_name: target/release/naty.exe
+            asset_name: naty-windows
           - name: macos
             os: macos-latest
-            artifact_name: target/release/hunt
-            asset_name: hunt-macos
+            artifact_name: target/release/naty
+            asset_name: naty-macos
     steps:
     - uses: actions/checkout@v1
 
