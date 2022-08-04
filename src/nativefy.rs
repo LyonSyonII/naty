@@ -1,84 +1,7 @@
-use crate::application::{def_height, def_width};
-use clap::{clap_derive::ArgEnum, Parser};
-use std::path::{Path, PathBuf};
+use std::path::Path;
+use clap::Parser;
 
-// TODO Unify Cli and AppSettigns structs, use the same for all
-pub const fn def_name() -> &'static str {
-    "Application Title"
-}
-
-#[derive(Parser, Debug, serde::Serialize)]
-#[clap(author, version, about)]
-struct Cli {
-    /// Url from which the app will be created
-    #[clap()]
-    target_url: String,
-
-    /// Directory where the application will be deployed.
-    ///
-    /// If not specified, the current directory will be used.
-    #[serde(skip)]
-    #[clap(short, long, default_value = ".")]
-    output_dir: PathBuf,
-
-    /// Title of the app
-    #[clap(short, long, default_value_t = def_name().into())]
-    name: String,
-
-    #[clap(short, long, arg_enum)]
-    platforms: Vec<Platform>,
-
-    #[clap(short, long)]
-    /// Icon of the app, it must be in a ".png" format
-    icon: Option<PathBuf>,
-
-    /// Enable always on top window
-    #[clap(long)]
-    always_on_top: bool,
-
-    /// Always start the app in full screen
-    #[clap(long)]
-    full_screen: bool,
-
-    #[clap(long, default_value_t = def_height())]
-    height: u32,
-
-    #[clap(long, default_value_t = def_width())]
-    width: u32,
-
-    #[clap(long)]
-    hide_window_frame: bool,
-
-    #[clap(long)]
-    show_menu_bar: bool,
-
-    #[clap(long, default_value_t = u32::MAX)]
-    max_width: u32,
-    #[clap(long, default_value_t = u32::MAX)]
-    max_height: u32,
-
-    #[clap(long, default_value_t = u32::MIN)]
-    min_width: u32,
-    #[clap(long, default_value_t = u32::MIN)]
-    min_height: u32,
-}
-
-#[derive(Clone, Debug, PartialEq, serde::Serialize, ArgEnum)]
-enum Platform {
-    Linux,
-    Windows,
-    MacOs,
-}
-
-impl From<&str> for Platform {
-    fn from(p: &str) -> Self {
-        match p {
-            "linux" => Platform::Linux,
-            "windows" => Platform::Windows,
-            _ => Platform::MacOs
-        }
-    }
-}
+use crate::structs::{AppSettings, Platform};
 
 const LINUX: &str = "https://github.com/LyonSyonII/naty/releases/download/v%version%/naty-linux";
 const WIN: &str = "https://github.com/LyonSyonII/naty/releases/download/v%version%/naty-windows.exe";
@@ -139,7 +62,7 @@ fn download_executable(
 // }
 
 fn setup_executable(
-    cli: &Cli,
+    cli: &AppSettings,
     settings: impl AsRef<str>,
     url: impl AsRef<str>,
     platform: impl AsRef<str>,
@@ -174,7 +97,7 @@ fn setup_executable(
 }
 
 pub fn run() -> std::io::Result<()> {
-    let mut cli: Cli = Cli::parse();
+    let mut cli: AppSettings = AppSettings::parse();
     let settings = toml::to_string_pretty(&cli).unwrap();
 
     if cli.platforms.is_empty() {

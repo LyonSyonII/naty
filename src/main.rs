@@ -1,5 +1,6 @@
 mod application;
 mod nativefy;
+mod structs;
 
 fn main() -> wry::Result<()> {
     // If on Application mode, run WebView
