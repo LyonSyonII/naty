@@ -17,6 +17,7 @@ jobs:
             os: ubuntu-latest
             artifact_name: target/release/hunt
             asset_name: hunt-linux
+            run: sudo apt install -y libwebkit2gtk-4.0-dev libappindicator3-dev
           - name: windows
             os: windows-latest
             artifact_name: target/release/hunt.exe
@@ -25,7 +26,6 @@ jobs:
             os: macos-latest
             artifact_name: target/release/hunt
             asset_name: hunt-macos
-
     steps:
     - uses: actions/checkout@v1
 
@@ -33,7 +33,7 @@ jobs:
       with:
         profile: minimal
         toolchain: stable
-
+      
     - name: Build
       run: cargo build --release --locked
 
