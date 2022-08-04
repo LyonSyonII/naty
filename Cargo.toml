@@ -2,7 +2,8 @@
 name = "naty"
 version = "0.1.0"
 edition = "2021"
-
+description = "Nativefier alternative that provides a WebView of any website with a minimal install size"
+license = "MIT"
 
 [dependencies]
 wry = "0.20.0"
