@@ -50,7 +50,7 @@ pub fn run(mut file: std::fs::File) -> wry::Result<()> {
     window.set_menu(settings.show_menu_bar.then_some(MenuBar::new()));
 
     if let Some(path) = settings.icon {
-        let icon = std::fs::read(path).unwrap_or_exit(format!("Icon '{}' does not exist. Please change the 'icon' option in 'naty.toml' or remove it completely.", path.display()));
+        let icon = std::fs::read(&path).unwrap_or_exit(format!("Icon '{}' does not exist. Please change the 'icon' option in 'naty.toml' or remove it completely.", path.display()));
 
         let icon = image::load_from_memory(&icon).unwrap();
         let width = icon.width();
