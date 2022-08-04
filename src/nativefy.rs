@@ -2,7 +2,6 @@ use crate::application::{def_height, def_width};
 use clap::{clap_derive::ArgEnum, Parser};
 use std::path::{Path, PathBuf};
 
-pub fn def_out_dir() -> PathBuf { std::env::current_dir().unwrap() }
 pub const fn def_name() -> &'static str { "Application Title" }
 
 #[derive(Parser, Debug, serde::Serialize)]
@@ -69,6 +68,10 @@ enum Platform {
     MacOs,
 }
 
+const LINUX: &str = "https://github.com/LyonSyonII/naty/releases/download/v0.1.4/naty-linux";
+const WIN: &str = "https://github.com/LyonSyonII/naty/releases/download/v0.1.4/naty-windows";
+const MACOS: &str = "https://github.com/LyonSyonII/naty/releases/download/v0.1.4/naty-macos";
+
 #[cfg(target_family = "windows")]
 pub fn copy_executable(output_dir: &Path, name: &str) -> std::io::Result<u64> {
     let name = format!("{name}.exe");
@@ -80,9 +83,41 @@ pub fn copy_executable(output_dir: &Path, name: &str) -> std::io::Result<u64> {
     std::fs::copy(std::env::current_exe()?, output_dir.join(name))
 }
 
+fn download_executable(url: &str, output_dir: impl AsRef<Path>, name: impl AsRef<str>, msg: impl AsRef<str>) -> std::io::Result<()> {
+    let output_dir = output_dir.as_ref();
+    let name = name.as_ref();
+    let msg = msg.as_ref();
+
+    let mut downloader = downloader::Downloader::builder().download_folder(output_dir).build().unwrap();
+    let download = downloader::Download::new(url).file_name(Path::new(name));
+    
+    let output_file = output_dir.join(name);
+    if output_file.exists() {
+        std::fs::remove_file(output_file)?;
+    }
+    
+    println!("{msg}");
+    let result = downloader.download(&[download]).unwrap();
+    
+    println!("{:?}", result);
+    
+    Ok(())
+}
+
+// pub fn download_linux_executable(output_dir: &Path, name: &str) -> std::io::Result<()> {   
+//     download_executable(output_dir, name, "Downloading Linux binary...")
+// }
+// 
+// pub fn download_windows_executable(output_dir: &Path, name: &str) -> std::io::Result<()> {
+//     download_executable(output_dir, format!("{name}.exe"), "Downloading Windows binary...")
+// }
+// 
+// pub fn download_macos_executable(output_dir: &Path, name: &str) -> std::io::Result<()> {
+//     download_executable(output_dir, name, "Downloading MacOS binary...")
+// }
+
 pub fn run() -> std::io::Result<()> {
     let cli: Cli = Cli::parse();
-    println!("{cli:?}");
     
     let settings = toml::to_string_pretty(&cli).unwrap();
     let output_dir = cli.output_dir.join(&cli.name);
@@ -97,13 +132,13 @@ pub fn run() -> std::io::Result<()> {
     } else {
         let mut platforms = cli.platforms;
         platforms.dedup();
-        // for platform in platforms {
-        //     match platform {
-        //         Platform::Linux => copy_linux_executable(),
-        //         Platform::Windows => copy_windows_executable(),
-        //         Platform::MacOs => copy_macos_executable(),
-        //     }
-        // }
+        for platform in platforms {
+            match platform {
+                Platform::Linux => download_executable(LINUX, &output_dir, &cli.name, "Downloading Linux binary...")?,
+                Platform::Windows => download_executable(WIN, &output_dir, format!("{}.exe", cli.name), "Downloading Windows binary...")?,
+                Platform::MacOs => download_executable(MACOS, &output_dir, &cli.name, "Downloading MacOS binary...")?,
+            }
+        }
     }
     
     Ok(())

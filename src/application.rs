@@ -75,7 +75,7 @@ pub fn run(mut file: std::fs::File) -> wry::Result<()> {
         .with_inner_size(Size::Physical(PhysicalSize::new(settings.width, settings.height)))
         .with_max_inner_size(Size::Physical(PhysicalSize::new(settings.max_width, settings.max_height)))
         .with_min_inner_size(Size::Physical(PhysicalSize::new(settings.min_width, settings.min_height)))
-        .with_decorations(settings.hide_window_frame)
+        .with_decorations(!settings.hide_window_frame)
         .with_menu(MenuBar::new())
         .build(&event_loop)?;
     
