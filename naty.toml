@@ -1,2 +1,3 @@
 url = "https://github.com/LyonSyonII/nativefier.rs"
-name = "Hello World!"
+title = "Hello World!"
+icon = true

@@ -1,9 +1,17 @@
 [package]
-name = "nativefier"
+name = "naty"
 version = "0.1.0"
 edition = "2021"
 
 [dependencies]
 wry = "0.20.0"
+image = "0.24.3"
+serde = { version = "1.0.142", features = ["derive"] }
 toml = "0.5.9"
-# clap = { "version" = "3.2.16", features = ["derive"] }
+clap = { version = "3.2.16", features = ["derive"] }
+
+[profile.release]
+strip = true
+opt-level = "z"
+lto = true
+codegen-units = 1
