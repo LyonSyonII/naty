@@ -1,7 +1,6 @@
 use crate::application::{def_height, def_width};
 use clap::{clap_derive::ArgEnum, Parser};
 use std::path::{Path, PathBuf};
-use wry::application::platform;
 
 // TODO Unify Cli and AppSettigns structs, use the same for all
 pub const fn def_name() -> &'static str {
@@ -81,9 +80,9 @@ impl From<&str> for Platform {
     }
 }
 
-const LINUX: &str = "https://github.com/LyonSyonII/naty/releases/download/%version%/naty-linux";
-const WIN: &str = "https://github.com/LyonSyonII/naty/releases/download/%version%/naty-windows.exe";
-const MACOS: &str = "https://github.com/LyonSyonII/naty/releases/download/%version%/naty-macos";
+const LINUX: &str = "https://github.com/LyonSyonII/naty/releases/download/v%version%/naty-linux";
+const WIN: &str = "https://github.com/LyonSyonII/naty/releases/download/v%version%/naty-windows.exe";
+const MACOS: &str = "https://github.com/LyonSyonII/naty/releases/download/v%version%/naty-macos";
 
 #[cfg(target_family = "windows")]
 pub fn copy_executable(output_dir: &Path, name: &str) -> std::io::Result<u64> {
@@ -182,7 +181,7 @@ pub fn run() -> std::io::Result<()> {
         cli.platforms.push(std::env::consts::OS.into())
     }
     cli.platforms.dedup();
-    
+
     for platform in &cli.platforms {
         match platform {
             Platform::Linux => {
