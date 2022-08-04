@@ -1,18 +1,12 @@
 use std::io::Read;
 
-use wry::{application::{self, window::{WindowBuilder, Window}, window::Icon, event_loop::ControlFlow, event::{StartCause, Event, WindowEvent}}, webview::WebViewBuilder};
+use wry::{application::{self, window::{WindowBuilder}, window::Icon, event_loop::ControlFlow, event::{Event, WindowEvent}}, webview::WebViewBuilder};
 
 #[derive(serde::Deserialize, Debug)]
 struct AppSettings<'i> {
     url: &'i str,
     title: &'i str,
     icon: bool,
-}
-
-fn exit(msg: impl AsRef<str>) -> ! {
-    let msg = msg.as_ref();
-    eprintln!("{msg}");
-    std::process::exit(1)
 }
 
 pub fn run(mut file: std::fs::File) -> wry::Result<()> {
@@ -48,14 +42,22 @@ pub fn run(mut file: std::fs::File) -> wry::Result<()> {
 }
 
 
-
-trait Exit<T, E> {
+trait Exit<T> {
     fn unwrap_or_exit(self, msg: impl AsRef<str>) -> T;
 }
 
-impl<T, E> Exit<T, E> for Result<T, E> {
+impl<T, E> Exit<T> for Result<T, E> {
     fn unwrap_or_exit(self, msg: impl AsRef<str>) -> T {
         self.unwrap_or_else(|_| {
+            eprintln!("{}", msg.as_ref());
+            std::process::exit(1)
+        })
+    }
+}
+
+impl<T> Exit<T> for Option<T> {
+    fn unwrap_or_exit(self, msg: impl AsRef<str>) -> T {
+        self.unwrap_or_else(|| {
             eprintln!("{}", msg.as_ref());
             std::process::exit(1)
         })
