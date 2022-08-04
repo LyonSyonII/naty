@@ -8,7 +8,7 @@ struct AppSettings<'i> {
     icon: bool,
 }
 
-#[cfg(target_os = "linux")]
+
 fn copy_executable() {
 
 }
