@@ -1,0 +1,13 @@
+[package]
+name = "naty_nativefy"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+naty_common = {path = "../naty_common"}
+toml = "0.5.9"
+tokio = { version = "1.20.1", features = ["rt"] }
+downloader = { version = "0.2.6", features = ["tui"] }
+site_icons = "0.1.13"

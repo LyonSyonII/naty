@@ -1,14 +1,11 @@
+pub use clap::Parser;
 use std::path::PathBuf;
-use clap::Parser;
 
 const fn def_false() -> bool {
     false
 }
 const fn def_true() -> bool {
     true
-}
-fn def_name() -> String {
-    "Application Title".into()
 }
 const fn def_height() -> u32 {
     800
@@ -20,11 +17,11 @@ const fn def_width() -> u32 {
 #[derive(Parser, serde::Serialize, serde::Deserialize, Debug)]
 #[clap(author, version, about)]
 pub struct AppSettings {
-    /// Url from which the app will be created
+    /// The URL that you wish to to turn into a native app.
     #[clap()]
     pub target_url: String,
 
-    /// Directory where the application will be deployed.
+    /// The directory to generate the app in.
     ///
     /// If not specified, the current directory will be used.
     #[clap(short, long, default_value = ".")]
@@ -32,16 +29,18 @@ pub struct AppSettings {
     pub output_dir: PathBuf,
 
     /// Title of the app
-    #[clap(short, long, default_value_t = def_name().into())]
-    #[serde(default = "def_name")]
-    pub name: String,
+    /// 
+    /// If not specified, Naty will try to extract it from the TARGET_URL.
+    #[clap(short, long)]
+    pub name: Option<String>,
 
+    /// The operating systems to build for.
     #[clap(short, long, arg_enum)]
     #[serde(skip)]
     pub platforms: Vec<Platform>,
 
-    #[clap(short, long)]
     /// Icon of the app, it must be in a ".png" format
+    #[clap(short, long)]
     pub icon: Option<PathBuf>,
 
     /// Enable always on top window
@@ -54,14 +53,17 @@ pub struct AppSettings {
     #[serde(default = "def_false")]
     pub full_screen: bool,
 
+    /// Set window defualt height in pixels
     #[clap(long, default_value_t = def_height())]
     #[serde(default = "def_height")]
     pub height: u32,
 
+    /// Set window default width in pixels
     #[clap(long, default_value_t = def_width())]
     #[serde(default = "def_width")]
     pub width: u32,
 
+    /// Disable window frame and controls
     #[clap(long)]
     #[serde(default = "def_false")]
     pub hide_window_frame: bool,
@@ -76,7 +78,7 @@ pub struct AppSettings {
     #[clap(long, default_value_t = u32::MAX)]
     #[serde(default = "u32::max_value")]
     pub max_height: u32,
-
+    
     #[clap(long, default_value_t = u32::MIN)]
     #[serde(default = "u32::min_value")]
     pub min_width: u32,
@@ -97,7 +99,37 @@ impl From<&str> for Platform {
         match p {
             "linux" => Platform::Linux,
             "windows" => Platform::Windows,
-            _ => Platform::MacOs
+            _ => Platform::MacOs,
         }
+    }
+}
+
+pub fn maybe_remove<'i>(original: impl Into<std::borrow::Cow<'i, str>>, needles: impl AsRef<[&'i str]>) -> std::borrow::Cow<'i, str> {
+    let mut result: std::borrow::Cow<'i, str> = original.into();
+    for needle in needles.as_ref() {
+        let find = result.find(needle);
+        if let Some(start) = find {
+            let mut tmp = std::borrow::Cow::into_owned(result);
+            tmp.replace_range(start..needle.len(), "");
+            result = tmp.into();
+        }
+    }
+    result
+}
+
+pub fn get_webpage_name<'i>(settings_name: Option<&'i String>, url: &'i str) -> std::borrow::Cow<'i, str> {
+    if let Some(name) = settings_name {
+        name.into()
+    } else {
+        let mut name = maybe_remove(url, ["https://", "http://", "https://www.", "http://wwww."]);
+        if let Some(sep) = name.find('/') {
+            name = name.split_at(sep).0.to_owned().into()
+        };
+        
+        if let Some(sep) = name.rfind('.') {
+            name = name[..sep].to_owned().into()
+        }
+        
+        name
     }
 }

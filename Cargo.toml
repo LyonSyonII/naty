@@ -6,15 +6,16 @@ description = "Nativefier alternative that provides a WebView of any website wit
 license = "MIT"
 
 [dependencies]
-wry = "0.20.0"
-image = "0.24.3"
-serde = { version = "1.0.142", features = ["derive"] }
-toml = "0.5.9"
-clap = { version = "3.2.16", features = ["derive"] }
-downloader = { version = "0.2.6", features = ["tui"] }
+naty_app = { path = "naty_app" }
+naty_nativefy = { path = "naty_nativefy" }
 
 [profile.release]
 strip = true
 opt-level = "z"
 lto = true
 codegen-units = 1
+
+[workspace]
+members = [
+    "naty_app", "naty_common", "naty_nativefy"
+]

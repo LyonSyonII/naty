@@ -1,13 +1,11 @@
-mod application;
-mod nativefy;
-mod structs;
+#![windows_subsystem = "windows"]
 
-fn main() -> wry::Result<()> {
+fn main() -> std::io::Result<()> {
     // If on Application mode, run WebView
     if let Ok(file) = std::fs::File::open("naty.toml") {
-        application::run(file)?;
+        naty_app::run(file).unwrap();
     } else {
-        nativefy::run()?;
+        naty_nativefy::run()?;
     }
 
     Ok(())

@@ -13,7 +13,7 @@ use wry::{
     webview::WebViewBuilder,
 };
 
-use crate::structs::AppSettings;
+use naty_common::AppSettings;
 
 pub fn run(mut file: std::fs::File) -> wry::Result<()> {
     let mut buffer = String::new();
@@ -23,8 +23,9 @@ pub fn run(mut file: std::fs::File) -> wry::Result<()> {
     let settings: AppSettings = toml::from_str(&buffer).unwrap();
     let event_loop = application::event_loop::EventLoop::new();
     
+    let name = naty_common::get_webpage_name(settings.name.as_ref(), &settings.target_url);
     let window = WindowBuilder::new()
-        .with_title(settings.name)
+        .with_title(name)
         .with_always_on_top(settings.always_on_top)
         .with_fullscreen(
             settings
