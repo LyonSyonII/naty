@@ -8,6 +8,7 @@ license = "MIT"
 [dependencies]
 naty_app = { path = "naty_app" }
 naty_nativefy = { path = "naty_nativefy" }
+naty_common = { path = "naty_common" }
 
 [profile.release]
 strip = true

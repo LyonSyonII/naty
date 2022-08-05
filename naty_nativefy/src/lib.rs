@@ -1,5 +1,5 @@
 use naty_common::{Parser, AppSettings, Platform};
-use std::path::Path;
+use std::path::{Path, PathBuf};
 
 const LINUX: &str = "https://github.com/LyonSyonII/naty/releases/download/v%version%/naty-linux";
 const WIN: &str =
@@ -33,7 +33,7 @@ fn download_file(
     let mut download = downloader::Download::new(url.as_ref());
     
     if let Some(name) = name {
-        download = download.file_name(&output_dir.join(name));
+        download = download.file_name(Path::new(name));
     }
     
     // let output_file = output_dir.join(name);
@@ -43,9 +43,7 @@ fn download_file(
     
     println!("{msg}");
     let result = downloader.download(&[download]).unwrap();
-
     println!("{:?}", result);
-
     Ok(())
 }
 
@@ -62,25 +60,36 @@ fn download_file(
 // }
 
 async fn download_webpage_icon(url: impl AsRef<str>, output_dir: impl AsRef<Path>) -> std::io::Result<()> {
-    let mut icons = site_icons::Icons::new();
-    icons.load_website(url.as_ref()).await.unwrap();
-    let entries = icons.entries().await;
-    if let Some(icon) = entries.first() {
-        download_file(icon.url.as_str(), output_dir, None, "Downloading icon...")?;
-    }
-    for icon in entries {
-        println!("{icon:?}");
-    }
+    let output_dir = output_dir.as_ref().to_owned();
+    let url = url.as_ref();
 
-    Ok(())
+    let mut icons = site_icons::Icons::new();
+    icons.load_website(url).await.unwrap();
+    let entries = icons.entries().await;
+    
+    if let Some(icon) = entries.first() {
+        let url = icon.url.as_str().to_owned();
+        
+        let output_file = output_dir.join("icon");
+        if output_file.exists() {
+            std::fs::remove_file(output_file)?;
+        }
+
+        return tokio::task::spawn_blocking(|| {
+            println!("Icon Output directory: {}", output_dir.display());
+            download_file(url, output_dir, Some("icon"), "Downloading icon...")
+        }).await.unwrap();
+    }
+    
+    Err(std::io::Error::new(std::io::ErrorKind::InvalidData, "Website does not have an icon"))
 }
 
 async fn setup_executable(
     cli: &AppSettings,
-    settings: impl AsRef<str>,
     download_url: impl AsRef<str>,
     platform: impl AsRef<str>,
 ) -> std::io::Result<()> {
+    let mut cli = cli.clone();
     let download_url = download_url.as_ref();
     let mut platform = platform.as_ref();
     if platform.is_empty() {
@@ -91,14 +100,12 @@ async fn setup_executable(
     let out_dir_name = format!("{}-{platform}", &name);
     let output_dir = cli.output_dir.join(&out_dir_name);
     std::fs::create_dir_all(&output_dir).expect("Could not create directory");
-    std::fs::write(output_dir.join("naty.toml"), settings.as_ref())
-        .expect("Could not create naty.toml");
+
     if let Some(icon) = &cli.icon {
         std::fs::copy(&icon, output_dir.join(icon.file_name().unwrap()))
             .expect("Could not copy icon");
-    } else {
-        download_webpage_icon(&cli.target_url, &output_dir).await?;
-        //println!("{icons:?}")
+    } else if download_webpage_icon(&cli.target_url, &output_dir).await.is_ok() {
+        cli.icon = Some("icon".into())
     }
 
     if platform == std::env::consts::OS {
@@ -111,6 +118,10 @@ async fn setup_executable(
             format!("Downloading {platform} binary..."),
         )?;
     }
+    
+    let settings = toml::to_string_pretty(&cli).unwrap();
+    std::fs::write(output_dir.join("naty.toml"), settings)
+    .expect("Could not create naty.toml");
 
     println!(
         "Successfully created \"{out_dir_name}\" in {}",
@@ -122,7 +133,6 @@ async fn setup_executable(
 
 async fn run_async() -> std::io::Result<()> {
     let mut cli: AppSettings = AppSettings::parse();
-    let settings = toml::to_string_pretty(&cli).unwrap();
 
     if cli.platforms.is_empty() {
         cli.platforms.push(std::env::consts::OS.into())
@@ -132,13 +142,13 @@ async fn run_async() -> std::io::Result<()> {
     for platform in &cli.platforms {
         match platform {
             Platform::Linux => {
-                setup_executable(&cli, &settings, LINUX, "linux").await?;
+                setup_executable(&cli, LINUX, "linux").await?;
             }
             Platform::Windows => {
-                setup_executable(&cli, &settings, WIN, "windows").await?;
+                setup_executable(&cli, WIN, "windows").await?;
             }
             Platform::MacOs => {
-                setup_executable(&cli, &settings, MACOS, "macos").await?;
+                setup_executable(&cli, MACOS, "macos").await?;
             }
         }
     }

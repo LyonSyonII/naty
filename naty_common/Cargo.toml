@@ -1,7 +1,9 @@
 [package]
 name = "naty_common"
-version = "0.1.0"
+version = "0.1.7"
 edition = "2021"
+description = "Nativefier alternative that provides a WebView of any website with a minimal install size"
+license = "MIT"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 

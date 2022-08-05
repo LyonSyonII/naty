@@ -14,7 +14,7 @@ const fn def_width() -> u32 {
     1280
 }
 
-#[derive(Parser, serde::Serialize, serde::Deserialize, Debug)]
+#[derive(Parser, serde::Serialize, serde::Deserialize, Debug, Clone)]
 #[clap(author, version, about)]
 pub struct AppSettings {
     /// The URL that you wish to to turn into a native app.
@@ -40,6 +40,8 @@ pub struct AppSettings {
     pub platforms: Vec<Platform>,
 
     /// Icon of the app, it must be in a ".png" format
+    /// 
+    /// If not provided, Naty will try to extract it from the TARGET_URL
     #[clap(short, long)]
     pub icon: Option<PathBuf>,
 
@@ -53,12 +55,12 @@ pub struct AppSettings {
     #[serde(default = "def_false")]
     pub full_screen: bool,
 
-    /// Set window defualt height in pixels
+    /// App window default height in pixels
     #[clap(long, default_value_t = def_height())]
     #[serde(default = "def_height")]
     pub height: u32,
 
-    /// Set window default width in pixels
+    /// App window default width in pixels
     #[clap(long, default_value_t = def_width())]
     #[serde(default = "def_width")]
     pub width: u32,
@@ -67,21 +69,28 @@ pub struct AppSettings {
     #[clap(long)]
     #[serde(default = "def_false")]
     pub hide_window_frame: bool,
-
+    
+    /// WIP: At the moment it does nothing
     #[clap(long)]
     #[serde(default = "def_false")]
     pub show_menu_bar: bool,
-
+    
+    /// Set window maximum width in pixels
     #[clap(long, default_value_t = u32::MAX)]
     #[serde(default = "u32::max_value")]
     pub max_width: u32,
+
+    /// Set window maximum height in pixels
     #[clap(long, default_value_t = u32::MAX)]
     #[serde(default = "u32::max_value")]
     pub max_height: u32,
     
+    /// Set window minimum width in pixels
     #[clap(long, default_value_t = u32::MIN)]
     #[serde(default = "u32::min_value")]
     pub min_width: u32,
+    
+    /// Set window minimum height in pixels
     #[clap(long, default_value_t = u32::MIN)]
     #[serde(default = "u32::min_value")]
     pub min_height: u32,
@@ -132,4 +141,8 @@ pub fn get_webpage_name<'i>(settings_name: Option<&'i String>, url: &'i str) -> 
         
         name
     }
+}
+
+pub fn get_exe_dir() -> PathBuf {
+    std::env::current_exe().unwrap().parent().unwrap().into()
 }
