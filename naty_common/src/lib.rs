@@ -4,6 +4,7 @@ use std::path::PathBuf;
 const fn def_false() -> bool {
     false
 }
+#[allow(dead_code)]
 const fn def_true() -> bool {
     true
 }
@@ -15,7 +16,7 @@ const fn def_width() -> u32 {
 }
 
 #[derive(Parser, serde::Serialize, serde::Deserialize, Debug, Clone)]
-#[clap(author, version, about)]
+#[clap(name = "naty", author, version, about)]
 pub struct AppSettings {
     /// The URL that you wish to to turn into a native app.
     #[clap()]
@@ -89,7 +90,7 @@ pub struct AppSettings {
     #[clap(long, default_value_t = u32::MIN)]
     #[serde(default = "u32::min_value")]
     pub min_width: u32,
-    
+
     /// Set window minimum height in pixels
     #[clap(long, default_value_t = u32::MIN)]
     #[serde(default = "u32::min_value")]

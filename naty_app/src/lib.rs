@@ -15,11 +15,20 @@ use wry::{
 
 use naty_common::AppSettings;
 
+/// Runs the application based on the provided `naty.toml`
+///
+/// Returns the resulting `wry::Result<()>` from the WebView invocation.  
+/// 
+/// See [`Wry`](https://github.com/tauri-apps/wry) for more information
+/// 
+/// # Example
+/// 
+/// 
 pub fn run(mut file: std::fs::File) -> wry::Result<()> {
     let mut buffer = String::new();
     file.read_to_string(&mut buffer)?;
     drop(file);
-
+    
     let settings: AppSettings = toml::from_str(&buffer).unwrap();
     let event_loop = application::event_loop::EventLoop::new();
     

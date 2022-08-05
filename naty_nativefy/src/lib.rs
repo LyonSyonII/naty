@@ -1,5 +1,5 @@
 use naty_common::{Parser, AppSettings, Platform};
-use std::path::{Path, PathBuf};
+use std::path::Path;
 
 const LINUX: &str = "https://github.com/LyonSyonII/naty/releases/download/v%version%/naty-linux";
 const WIN: &str =
@@ -17,7 +17,7 @@ pub fn copy_executable(output_dir: &Path, name: &str) -> std::io::Result<u64> {
     std::fs::copy(std::env::current_exe()?, output_dir.join(name))
 }
 
-fn download_file(
+async fn download_file(
     url: impl AsRef<str>,
     output_dir: impl AsRef<Path>,
     name: Option<&str>,
@@ -42,7 +42,7 @@ fn download_file(
     // }
     
     println!("{msg}");
-    let result = downloader.download(&[download]).unwrap();
+    let result = tokio::task::spawn_blocking(move || { downloader.download(&[download]).unwrap() }).await;
     println!("{:?}", result);
     Ok(())
 }
@@ -78,7 +78,7 @@ async fn download_webpage_icon(url: impl AsRef<str>, output_dir: impl AsRef<Path
         return tokio::task::spawn_blocking(|| {
             println!("Icon Output directory: {}", output_dir.display());
             download_file(url, output_dir, Some("icon"), "Downloading icon...")
-        }).await.unwrap();
+        }).await.unwrap().await;
     }
     
     Err(std::io::Error::new(std::io::ErrorKind::InvalidData, "Website does not have an icon"))
@@ -116,7 +116,7 @@ async fn setup_executable(
             &output_dir,
             Some(&name),
             format!("Downloading {platform} binary..."),
-        )?;
+        ).await?;
     }
     
     let settings = toml::to_string_pretty(&cli).unwrap();

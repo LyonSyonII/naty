@@ -1,6 +1,7 @@
 [package]
 name = "naty_app"
 version = "0.2.0"
+authors = ["Liam Garriga <l.garriga.r@tutanota.com>"]
 edition = "2021"
 description = "Nativefier alternative that provides a WebView of any website with a minimal install size"
 license = "MIT"
