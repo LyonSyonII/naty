@@ -32,7 +32,12 @@ jobs:
       with:
         profile: minimal
         toolchain: stable
-    
+
+    - name: Rust Cache
+      uses: Swatinem/rust-cache@v2.0.0
+      with:
+        shared-key: "${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}"
+
     - name: Install dependencies
       if: matrix.os == 'ubuntu-latest'
       run: sudo apt install -y libwebkit2gtk-4.0-dev libappindicator3-dev
