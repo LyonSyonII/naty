@@ -1540,7 +1540,7 @@ dependencies = [
 
 [[package]]
 name = "naty"
-version = "0.2.1"
+version = "0.2.0"
 dependencies = [
  "naty_app",
  "naty_common",
