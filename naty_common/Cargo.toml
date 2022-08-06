@@ -11,4 +11,4 @@ documentation = "https://github.com/LyonSyonII/naty"
 
 [dependencies]
 clap = { version = "3.2.16", features = ["derive"] }
-serde = { version = "1.0.142", features = ["derive"] }
+serde = { version = "1.0.142", default_features = false, features = ["derive"] }

@@ -59,7 +59,18 @@ async fn download_webpage_icon(url: impl AsRef<str>, output_dir: impl AsRef<Path
     let url = url.as_ref();
 
     let mut icons = site_icons::Icons::new();
-    icons.load_website(url).await.unwrap();
+    icons.load_website(url).await.unwrap_or_else(|e| {
+        println!("Error");
+        // fn type_of<T>(_: &T) -> &'static str {
+        //     std::any::type_name::<T>()
+        // }
+        // println!("{}", type_of(&e));
+        // Does not work
+        match e.downcast::<reqwest_wasm::Error>() {
+            Ok(error) => println!("Extracted error: {error}"),
+            Err(not) => { println!("Not extracted: {}", not); },
+        }
+    });
     let entries = icons.entries().await;
     
     if let Some(icon) = entries.first() {
