@@ -20,7 +20,7 @@ pub fn copy_executable(output_dir: &Path, name: &str) -> std::io::Result<u64> {
 async fn download_file(
     url: impl AsRef<str>,
     output_dir: impl AsRef<Path>,
-    name: Option<&str>,
+    name: &str,
     msg: impl AsRef<str>,
 ) -> std::io::Result<()> {
     let output_dir = output_dir.as_ref();
@@ -30,16 +30,11 @@ async fn download_file(
         .download_folder(output_dir)
         .build()
         .unwrap();
-    let mut download = downloader::Download::new(url.as_ref());
-    
-    if let Some(name) = name {
-        download = download.file_name(Path::new(name));
+    let download = downloader::Download::new(url.as_ref()).file_name(Path::new(name));
+    let output_file = output_dir.join(name);
+    if output_file.exists() {
+        std::fs::remove_file(output_file)?;
     }
-    
-    // let output_file = output_dir.join(name);
-    // if output_file.exists() {
-    //     std::fs::remove_file(output_file)?;
-    // }
     
     println!("{msg}");
     let result = tokio::task::spawn_blocking(move || { downloader.download(&[download]).unwrap() }).await;
@@ -77,7 +72,7 @@ async fn download_webpage_icon(url: impl AsRef<str>, output_dir: impl AsRef<Path
 
         return tokio::task::spawn_blocking(|| {
             println!("Icon Output directory: {}", output_dir.display());
-            download_file(url, output_dir, Some("icon"), "Downloading icon...")
+            download_file(url, output_dir, "icon", "Downloading icon...")
         }).await.unwrap().await;
     }
     
@@ -106,22 +101,24 @@ async fn setup_executable(
             .expect("Could not copy icon");
     } else if download_webpage_icon(&cli.target_url, &output_dir).await.is_ok() {
         cli.icon = Some("icon".into())
+    } else {
+        println!("Unable to extract an icon from {}, using default one", cli.target_url)
     }
 
     if platform == std::env::consts::OS {
         copy_executable(&output_dir, &name)?;
     } else {
+        let download_url = download_url.replace("%version%", env!("CARGO_PKG_VERSION"));
         download_file(
-            download_url.replace("%version%", env!("CARGO_PKG_VERSION")),
+            &download_url,
             &output_dir,
-            Some(&name),
-            format!("Downloading {platform} binary..."),
+            &name,
+            format!("Downloading {platform} binary from {download_url}"),
         ).await?;
     }
     
     let settings = toml::to_string_pretty(&cli).unwrap();
-    std::fs::write(output_dir.join("naty.toml"), settings)
-    .expect("Could not create naty.toml");
+    std::fs::write(output_dir.join("naty.toml"), settings).expect("Could not create naty.toml");
 
     println!(
         "Successfully created \"{out_dir_name}\" in {}",
