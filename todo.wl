@@ -8,9 +8,11 @@
     [x] [Fixed - 0.2.2 ] Add warning when icon is not found in website
     [] Use Naty's logo if no icon is availabe
     [] Tray support
-    [] If logo is .svg transform it to .svg
+    [] If logo is .svg transform it to .png
     [] [Windows] Add .exe to final executable
-    [] 
+    [] [Windows] No output to stdout
+        [] Caused by #![windows_subsystem = "windows"], search form to activate it only on App executable
+    [] [Windows] Window closes instantly
 [] Naty_app
     [] web.whatsapp.com
         [x] Window freezes when opening an image
