@@ -1563,6 +1563,7 @@ version = "0.2.1"
 dependencies = [
  "clap",
  "serde",
+ "url",
 ]
 
 [[package]]
@@ -1575,6 +1576,7 @@ dependencies = [
  "site_icons",
  "tokio 1.20.1",
  "toml",
+ "url",
 ]
 
 [[package]]

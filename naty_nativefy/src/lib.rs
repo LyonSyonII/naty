@@ -1,6 +1,7 @@
 use naty_common::{AppSettings, Parser, Platform};
 use site_icons::{IconKind, Icon, IconInfo};
-use std::path::Path;
+use url::Url;
+use std::{path::{Path, PathBuf}};
 
 const LINUX: &str = "https://github.com/LyonSyonII/naty/releases/download/v%version%/naty-linux";
 const WIN: &str =
@@ -113,18 +114,20 @@ async fn download_webpage_icon(
 }
 
 async fn setup_executable(
-    cli: &AppSettings,
-    download_url: impl AsRef<str>,
+    target_url: Url,
+    naty_executable_url: impl AsRef<str>,
+    name: impl AsRef<str>,
+    icon: &Option<PathBuf>,
     platform: impl AsRef<str>,
 ) -> std::io::Result<()> {
-    let mut cli = cli.clone();
-    let download_url = download_url.as_ref();
+    let naty_exe_url = naty_executable_url.as_ref();
+    let mut icon = icon.as_ref();
     let mut platform = platform.as_ref();
     if platform.is_empty() {
         platform = std::env::consts::OS;
     }
 
-    let name = naty_common::get_webpage_name(cli.name.as_ref(), &cli.target_url);
+    let name = naty_common::get_webpage_name(name.as_ref(), target_url);
     let out_dir_name = format!("{}-{platform}", &name);
     let output_dir = cli.output_dir.join(&out_dir_name);
     std::fs::create_dir_all(&output_dir).expect("Could not create directory");
@@ -146,7 +149,7 @@ async fn setup_executable(
     if platform == std::env::consts::OS {
         copy_executable(&output_dir, &name)?;
     } else {
-        let download_url = download_url.replace("%version%", env!("CARGO_PKG_VERSION"));
+        let download_url = naty_exe_url.replace("%version%", env!("CARGO_PKG_VERSION"));
         download_file(
             &download_url,
             &output_dir,
@@ -174,7 +177,13 @@ async fn run_async() -> std::io::Result<()> {
         cli.platforms.push(std::env::consts::OS.into())
     }
     cli.platforms.dedup();
+    
 
+    let url: url::Url = cli.target_url.as_str().try_into().unwrap_or_else(|err| {
+        println!("Error parsing the url: {err}");
+        std::process::exit(1)
+    });
+    
     for platform in &cli.platforms {
         match platform {
             Platform::Linux => {

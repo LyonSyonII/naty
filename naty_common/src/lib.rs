@@ -1,4 +1,5 @@
 pub use clap::Parser;
+use url::Url;
 use std::path::PathBuf;
 
 const fn def_false() -> bool {
@@ -139,21 +140,18 @@ pub fn maybe_remove<'i>(
 
 pub fn get_webpage_name<'i>(
     settings_name: Option<&'i String>,
-    url: &'i str,
+    url: Url,
 ) -> std::borrow::Cow<'i, str> {
     if let Some(name) = settings_name {
         name.into()
+    } else if url.cannot_be_a_base() {
+        "App Name".into()
     } else {
-        let mut name = maybe_remove(url, ["https://", "http://", "https://www.", "http://wwww."]);
-        if let Some(sep) = name.find('/') {
-            name = name.split_at(sep).0.to_owned().into()
-        };
-
-        if let Some(sep) = name.rfind('.') {
-            name = name[..sep].to_owned().into()
+        let domain = url.domain().unwrap_or(url.cannot_be_a_base())
+        if let Some(domain) = url.domain() {
+            let idx = domain.find('.');
+        
         }
-
-        name
     }
 }
 
