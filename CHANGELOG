@@ -1,0 +1,7 @@
+##############
+#   0.2.2   #
+##############
+- Fixed binary downloads when the file already exists
+- Fixed window freezes in certain occasions
+- Added hide_taskbar_icon option
+- Added warning when icon is not found on website
