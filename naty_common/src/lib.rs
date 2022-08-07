@@ -30,7 +30,7 @@ pub struct AppSettings {
     pub output_dir: PathBuf,
 
     /// Title of the app.
-    /// 
+    ///
     /// If not specified, Naty will try to extract it from the TARGET_URL.
     #[clap(short, long)]
     pub name: Option<String>,
@@ -41,7 +41,7 @@ pub struct AppSettings {
     pub platforms: Vec<Platform>,
 
     /// Icon of the app, it must be in a ".png" format.
-    /// 
+    ///
     /// If not provided, Naty will try to extract it from the TARGET_URL.
     #[clap(short, long)]
     pub icon: Option<PathBuf>,
@@ -65,17 +65,17 @@ pub struct AppSettings {
     #[clap(long, default_value_t = def_width())]
     #[serde(default = "def_width")]
     pub width: u32,
-    
+
     /// Disable window frame and controls.
     #[clap(long)]
     #[serde(default = "def_false")]
     pub hide_window_frame: bool,
-    
+
     /// WIP: At the moment it does nothing.
     #[clap(long)]
     #[serde(default = "def_false")]
     pub show_menu_bar: bool,
-    
+
     /// Set window maximum width in pixels.
     #[clap(long, default_value_t = u32::MAX)]
     #[serde(default = "u32::max_value")]
@@ -85,19 +85,19 @@ pub struct AppSettings {
     #[clap(long, default_value_t = u32::MAX)]
     #[serde(default = "u32::max_value")]
     pub max_height: u32,
-    
+
     /// Set window minimum width in pixels.
     #[clap(long, default_value_t = u32::MIN)]
     #[serde(default = "u32::min_value")]
     pub min_width: u32,
-    
+
     /// Set window minimum height in pixels.
     #[clap(long, default_value_t = u32::MIN)]
     #[serde(default = "u32::min_value")]
     pub min_height: u32,
-    
-    /// Hides taskbar icon. 
-    /// 
+
+    /// Hides taskbar icon.
+    ///
     /// The window can't be minimized.
     #[clap(long)]
     #[serde()]
@@ -121,7 +121,10 @@ impl From<&str> for Platform {
     }
 }
 
-pub fn maybe_remove<'i>(original: impl Into<std::borrow::Cow<'i, str>>, needles: impl AsRef<[&'i str]>) -> std::borrow::Cow<'i, str> {
+pub fn maybe_remove<'i>(
+    original: impl Into<std::borrow::Cow<'i, str>>,
+    needles: impl AsRef<[&'i str]>,
+) -> std::borrow::Cow<'i, str> {
     let mut result: std::borrow::Cow<'i, str> = original.into();
     for needle in needles.as_ref() {
         let find = result.find(needle);
@@ -134,7 +137,10 @@ pub fn maybe_remove<'i>(original: impl Into<std::borrow::Cow<'i, str>>, needles:
     result
 }
 
-pub fn get_webpage_name<'i>(settings_name: Option<&'i String>, url: &'i str) -> std::borrow::Cow<'i, str> {
+pub fn get_webpage_name<'i>(
+    settings_name: Option<&'i String>,
+    url: &'i str,
+) -> std::borrow::Cow<'i, str> {
     if let Some(name) = settings_name {
         name.into()
     } else {
@@ -142,11 +148,11 @@ pub fn get_webpage_name<'i>(settings_name: Option<&'i String>, url: &'i str) -> 
         if let Some(sep) = name.find('/') {
             name = name.split_at(sep).0.to_owned().into()
         };
-        
+
         if let Some(sep) = name.rfind('.') {
             name = name[..sep].to_owned().into()
         }
-        
+
         name
     }
 }

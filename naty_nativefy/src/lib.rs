@@ -1,4 +1,5 @@
-use naty_common::{Parser, AppSettings, Platform};
+use naty_common::{AppSettings, Parser, Platform};
+use site_icons::{IconKind, Icon, IconInfo};
 use std::path::Path;
 
 const LINUX: &str = "https://github.com/LyonSyonII/naty/releases/download/v%version%/naty-linux";
@@ -35,9 +36,11 @@ async fn download_file(
     if output_file.exists() {
         std::fs::remove_file(output_file)?;
     }
-    
+
     println!("{msg}");
-    let result = tokio::task::spawn_blocking(move || { downloader.download(&[download]).unwrap() }).await;
+    let result = tokio::task::spawn_blocking(move 
+        || downloader.download(&[download]).unwrap()
+    ).await;
     println!("{:?}", result);
     Ok(())
 }
@@ -54,28 +57,41 @@ async fn download_file(
 //     download_executable(output_dir, name, "Downloading MacOS binary...")
 // }
 
-async fn download_webpage_icon(url: impl AsRef<str>, output_dir: impl AsRef<Path>) -> std::io::Result<()> {
+async fn download_webpage_icon(
+    url: impl AsRef<str>,
+    output_dir: impl AsRef<Path>,
+) -> std::io::Result<()> {
     let output_dir = output_dir.as_ref().to_owned();
     let url = url.as_ref();
 
     let mut icons = site_icons::Icons::new();
     icons.load_website(url).await.unwrap_or_else(|e| {
         println!("Error");
-        // fn type_of<T>(_: &T) -> &'static str {
-        //     std::any::type_name::<T>()
-        // }
-        // println!("{}", type_of(&e));
-        // Does not work
         match e.downcast::<reqwest_wasm::Error>() {
             Ok(error) => println!("Extracted error: {error}"),
-            Err(not) => { println!("Not extracted: {}", not); },
+            Err(not) => {
+                println!("Not extracted: {}", not);
+            }
         }
     });
     let entries = icons.entries().await;
-    
-    if let Some(icon) = entries.first() {
+    println!("Available icons: {:?}", entries);
+    // Get icon of higher size with: width == height && !Favicon && !SVG
+    let mut best_icon: Option<Icon> = None;
+    for icon in entries {
+        if let Some(sizes) =  icon.info.sizes() {
+            let size = sizes.first();
+            let (width, height) = (size.width, size.height);
+            if width == height && icon.kind != IconKind::SiteFavicon  && icon.info != IconInfo::SVG {
+                best_icon = Some(icon);
+                break;
+            }
+        }
+    }
+
+    if let Some(icon) = best_icon {
         let url = icon.url.as_str().to_owned();
-        
+
         let output_file = output_dir.join("icon");
         if output_file.exists() {
             std::fs::remove_file(output_file)?;
@@ -84,10 +100,16 @@ async fn download_webpage_icon(url: impl AsRef<str>, output_dir: impl AsRef<Path
         return tokio::task::spawn_blocking(|| {
             println!("Icon Output directory: {}", output_dir.display());
             download_file(url, output_dir, "icon", "Downloading icon...")
-        }).await.unwrap().await;
+        })
+        .await
+        .unwrap()
+        .await;
     }
-    
-    Err(std::io::Error::new(std::io::ErrorKind::InvalidData, "Website does not have an icon"))
+
+    Err(std::io::Error::new(
+        std::io::ErrorKind::InvalidData,
+        "Website does not have a valid icon",
+    ))
 }
 
 async fn setup_executable(
@@ -101,19 +123,24 @@ async fn setup_executable(
     if platform.is_empty() {
         platform = std::env::consts::OS;
     }
-    
+
     let name = naty_common::get_webpage_name(cli.name.as_ref(), &cli.target_url);
     let out_dir_name = format!("{}-{platform}", &name);
     let output_dir = cli.output_dir.join(&out_dir_name);
     std::fs::create_dir_all(&output_dir).expect("Could not create directory");
 
     if let Some(icon) = &cli.icon {
-        std::fs::copy(&icon, output_dir.join(icon.file_name().unwrap()))
-            .expect("Could not copy icon");
+        std::fs::copy(
+            &icon, 
+            output_dir.join(icon.file_name().unwrap())
+        ).expect("Could not copy icon");
     } else if download_webpage_icon(&cli.target_url, &output_dir).await.is_ok() {
         cli.icon = Some("icon".into())
     } else {
-        println!("Unable to extract an icon from {}, using default one", cli.target_url)
+        println!(
+            "Unable to extract an icon from {}, using default one",
+            cli.target_url
+        )
     }
 
     if platform == std::env::consts::OS {
@@ -125,9 +152,10 @@ async fn setup_executable(
             &output_dir,
             &name,
             format!("Downloading {platform} binary from {download_url}"),
-        ).await?;
+        )
+        .await?;
     }
-    
+
     let settings = toml::to_string_pretty(&cli).unwrap();
     std::fs::write(output_dir.join("naty.toml"), settings).expect("Could not create naty.toml");
 

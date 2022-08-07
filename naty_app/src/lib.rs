@@ -7,8 +7,9 @@ use wry::{
         event::{Event, WindowEvent},
         event_loop::ControlFlow,
         menu::MenuBar,
+        platform::unix::WindowBuilderExtUnix,
         window::Icon,
-        window::{self, WindowBuilder}, platform::unix::WindowBuilderExtUnix,
+        window::{self, WindowBuilder},
     },
     webview::WebViewBuilder,
 };
@@ -18,20 +19,20 @@ use naty_common::AppSettings;
 /// Runs the application based on the provided `naty.toml`
 ///
 /// Returns the resulting `wry::Result<()>` from the WebView invocation.  
-/// 
+///
 /// See [`Wry`](https://github.com/tauri-apps/wry) for more information
-/// 
+///
 /// # Example
-/// 
-/// 
+///
+///
 pub fn run(mut file: std::fs::File) -> wry::Result<()> {
     let mut buffer = String::new();
     file.read_to_string(&mut buffer)?;
     drop(file);
-    
+
     let settings: AppSettings = toml::from_str(&buffer).unwrap();
     let event_loop = application::event_loop::EventLoop::new();
-    
+
     let name = naty_common::get_webpage_name(settings.name.as_ref(), &settings.target_url);
     let window = WindowBuilder::new()
         .with_title(name)
@@ -61,7 +62,7 @@ pub fn run(mut file: std::fs::File) -> wry::Result<()> {
     if let Some(path) = settings.icon {
         let exe_dir = naty_common::get_exe_path();
         let icon = std::fs::read(naty_common::get_exe_path().join(&path)).unwrap_or_exit(format!("There's no icon in . Please change the 'icon' option in '{}/naty.toml' or remove it completely.", exe_dir.display()));
-        
+
         let icon = image::load_from_memory(&icon).unwrap();
         let width = icon.width();
         let height = icon.height();
@@ -74,7 +75,7 @@ pub fn run(mut file: std::fs::File) -> wry::Result<()> {
 
     event_loop.run(move |event, _, control_flow| {
         *control_flow = ControlFlow::Poll;
-        
+
         if let Event::WindowEvent {
             event: WindowEvent::CloseRequested,
             ..
