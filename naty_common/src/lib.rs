@@ -1,6 +1,6 @@
 pub use clap::Parser;
-use url::Url;
 use std::path::PathBuf;
+use url::Url;
 
 const fn def_false() -> bool {
     false
@@ -138,21 +138,15 @@ pub fn maybe_remove<'i>(
     result
 }
 
-pub fn get_webpage_name<'i>(
-    settings_name: Option<&'i String>,
-    url: Url,
-) -> std::borrow::Cow<'i, str> {
-    if let Some(name) = settings_name {
-        name.into()
-    } else if url.cannot_be_a_base() {
-        "App Name".into()
-    } else {
-        let domain = url.domain().unwrap_or(url.cannot_be_a_base())
-        if let Some(domain) = url.domain() {
-            let idx = domain.find('.');
-        
-        }
+pub fn get_webpage_name<'i>(name: &'i Option<String>, url: &'i Url) -> std::borrow::Cow<'i, str> {
+    if let Some(name) = name {
+        return name.into();
     }
+
+    url.domain()
+        .and_then(|domain| domain.rfind('.').and_then(|idx| domain[..idx].into()))
+        .unwrap_or("App Name")
+        .into()
 }
 
 pub fn get_exe_path() -> PathBuf {
