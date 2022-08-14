@@ -3,8 +3,7 @@ use site_icons::{Icon, IconInfo, IconKind};
 use std::path::Path;
 
 const LINUX: &str = "https://github.com/LyonSyonII/naty/releases/download/v%version%/naty-linux";
-const WIN: &str =
-    "https://github.com/LyonSyonII/naty/releases/download/v%version%/naty-windows.exe";
+const WIN: &str = "https://github.com/LyonSyonII/naty/releases/download/v%version%/naty-windows.exe";
 const MACOS: &str = "https://github.com/LyonSyonII/naty/releases/download/v%version%/naty-macos";
 
 #[cfg(target_family = "windows")]
@@ -143,10 +142,12 @@ async fn setup_executable(
         None if download_webpage_icon(&cli.target_url, &output_dir).await.is_ok() => {
             cli.icon = Some("icon".into())
         }
-        None => println!(
-            "Unable to extract an icon from {}, using default one",
-            cli.target_url
-        ),
+        None => {
+            println!(
+                "Unable to extract an icon from {}, using default one",
+                cli.target_url
+            );
+        }
     };
 
     if platform == std::env::consts::OS {
