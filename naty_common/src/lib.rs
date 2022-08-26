@@ -103,9 +103,14 @@ pub struct AppSettings {
     #[clap(long)]
     #[serde()]
     pub hide_taskbar_icon: bool,
+
+    /// Runs the command before spawing a window, useful for starting web servers for WebApps.
+    #[clap(short, long)]
+    #[serde()]
+    pub command: Option<String>
 }
 
-#[derive(Clone, Debug, PartialEq, serde::Serialize, clap::ArgEnum)]
+#[derive(Clone, Debug, PartialEq, Eq, serde::Serialize, clap::ArgEnum)]
 pub enum Platform {
     Linux,
     Windows,
@@ -138,7 +143,7 @@ pub fn maybe_remove<'i>(
     result
 }
 
-pub fn get_webpage_name<'i>(name: &'i Option<String>, url: &'i Url) -> std::borrow::Cow<'i, str> {
+pub fn get_webpage_name<'i>(name: Option<&'i str>, url: &'i Url) -> std::borrow::Cow<'i, str> {
     if let Some(name) = name {
         return name.into();
     }

@@ -29,11 +29,21 @@ pub fn run(mut file: std::fs::File) -> wry::Result<()> {
     let mut buffer = String::new();
     file.read_to_string(&mut buffer)?;
     drop(file);
-
+    
     let settings: AppSettings = toml::from_str(&buffer).unwrap();
     let event_loop = application::event_loop::EventLoop::new();
+    
+    let url: wry::webview::Url = settings.target_url.as_str().try_into().unwrap_or_else(|err| {
+        println!("Error parsing the url: {err}");
+        std::process::exit(1)
+    });
+    
+    settings.command.and_then(|cmd| {
+        let mut cmd = cmd.split_whitespace();
+        std::process::Command::new(cmd.next()?).args(cmd.collect::<Vec<_>>()).spawn().ok()
+    });
 
-    let name = naty_common::get_webpage_name(settings.name.as_ref(), &settings.target_url);
+    let name = naty_common::get_webpage_name(settings.name.as_deref(), &url);
     let window = WindowBuilder::new()
         .with_title(name)
         .with_always_on_top(settings.always_on_top)

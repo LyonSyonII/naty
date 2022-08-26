@@ -125,8 +125,8 @@ async fn setup_executable(
         println!("Error parsing the url: {err}");
         std::process::exit(1)
     });
-
-    let name = naty_common::get_webpage_name(&cli.name, &url);
+    
+    let name = naty_common::get_webpage_name(cli.name.as_deref(), &url);
     let out_dir_name = format!("{}-{platform}", &name);
     let output_dir = cli.output_dir.join(&out_dir_name);
     std::fs::create_dir_all(&output_dir).expect("Could not create directory");
@@ -163,10 +163,8 @@ async fn setup_executable(
         .await?;
     }
 
-    let out_dir_name = format!("{}-{platform}", name);
-    let output_dir = output_dir.join(&out_dir_name);
-
     let settings = toml::to_string_pretty(&cli).unwrap();
+    dbg!(&output_dir);
     std::fs::write(output_dir.join("naty.toml"), settings).expect("Could not create naty.toml");
 
     println!(
