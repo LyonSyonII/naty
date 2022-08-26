@@ -5,6 +5,7 @@ use std::path::Path;
 const LINUX: &str = "https://github.com/LyonSyonII/naty/releases/download/v%version%/naty-linux";
 const WIN: &str = "https://github.com/LyonSyonII/naty/releases/download/v%version%/naty-windows.exe";
 const MACOS: &str = "https://github.com/LyonSyonII/naty/releases/download/v%version%/naty-macos";
+const ICON: &[u8] = include_bytes!("../../logos/icon.png");
 
 #[cfg(target_family = "windows")]
 pub fn copy_executable(output_dir: &Path, name: &str) -> std::io::Result<u64> {
@@ -43,18 +44,6 @@ async fn download_file(
     Ok(())
 }
 
-// pub fn download_linux_executable(output_dir: &Path, name: &str) -> std::io::Result<()> {
-//     download_executable(output_dir, name, "Downloading Linux binary...")
-// }
-//
-// pub fn download_windows_executable(output_dir: &Path, name: &str) -> std::io::Result<()> {
-//     download_executable(output_dir, format!("{name}.exe"), "Downloading Windows binary...")
-// }
-//
-// pub fn download_macos_executable(output_dir: &Path, name: &str) -> std::io::Result<()> {
-//     download_executable(output_dir, name, "Downloading MacOS binary...")
-// }
-
 async fn download_webpage_icon(
     url: impl AsRef<str>,
     output_dir: impl AsRef<Path>,
@@ -90,14 +79,14 @@ async fn download_webpage_icon(
     if let Some(icon) = best_icon {
         let url = icon.url.as_str().to_owned();
 
-        let output_file = output_dir.join("icon");
+        let output_file = output_dir.join("icon.png");
         if output_file.exists() {
             std::fs::remove_file(output_file)?;
         }
 
         return tokio::task::spawn_blocking(|| {
             println!("Icon Output directory: {}", output_dir.display());
-            download_file(url, output_dir, "icon", "Downloading icon...")
+            download_file(url, output_dir, "icon.png", "Downloading icon...")
         })
         .await
         .unwrap()
@@ -140,13 +129,15 @@ async fn setup_executable(
             .expect("Could not copy icon");
         }
         None if download_webpage_icon(&cli.target_url, &output_dir).await.is_ok() => {
-            cli.icon = Some("icon".into())
+            cli.icon = Some("icon.png".into())
         }
         None => {
             println!(
                 "Unable to extract an icon from {}, using default one",
                 cli.target_url
             );
+            cli.icon = Some("icon.png".into());
+            std::fs::write(output_dir.join("icon.png"), ICON).expect("Could not copy default icon into app directory");
         }
     };
 
@@ -164,7 +155,6 @@ async fn setup_executable(
     }
 
     let settings = toml::to_string_pretty(&cli).unwrap();
-    dbg!(&output_dir);
     std::fs::write(output_dir.join("naty.toml"), settings).expect("Could not create naty.toml");
 
     println!(

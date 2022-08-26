@@ -71,7 +71,7 @@ pub fn run(mut file: std::fs::File) -> wry::Result<()> {
 
     if let Some(path) = settings.icon {
         let exe_dir = naty_common::get_exe_path();
-        let icon = std::fs::read(naty_common::get_exe_path().join(&path)).unwrap_or_exit(format!("There's no icon in . Please change the 'icon' option in '{}/naty.toml' or remove it completely.", exe_dir.display()));
+        let icon = std::fs::read(naty_common::get_exe_path().join(&path)).unwrap_or_exit(format!("There's no icon in the root directory. Please change the 'icon' option in '{}/naty.toml' or remove it completely.", exe_dir.display()));
 
         let icon = image::load_from_memory(&icon).unwrap();
         let width = icon.width();
