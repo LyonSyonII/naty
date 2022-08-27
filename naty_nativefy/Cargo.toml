@@ -10,7 +10,7 @@ documentation = "https://github.com/LyonSyonII/naty"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-naty_common = { version = "0.3.0", path = "../naty_common" }
+naty_common = { version = "0.2.1", path = "../naty_common" }
 toml = "0.5.9"
 tokio = { version = "1.20.1", features = ["rt"] }
 downloader = { version = "0.2.6", features = ["tui"] }
