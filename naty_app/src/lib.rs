@@ -68,15 +68,15 @@ pub fn run(mut file: std::fs::File) -> wry::Result<()> {
         .with_skip_taskbar(settings.hide_taskbar_icon)
         .build(&event_loop)?;
     window.set_menu(settings.show_menu_bar.then_some(MenuBar::new()));
-
-    if let Some(path) = settings.icon {
-        let exe_dir = naty_common::get_exe_path();
-        let icon = std::fs::read(naty_common::get_exe_path().join(&path)).unwrap_or_exit(format!("There's no icon in the root directory. Please change the 'icon' option in '{}/naty.toml' or remove it completely.", exe_dir.display()));
-
+    
+    // Add icon to executable
+    if let Ok(icon) = std::fs::read(naty_common::get_exe_path().join("icon.png")) {
         let icon = image::load_from_memory(&icon).unwrap();
         let width = icon.width();
         let height = icon.height();
         window.set_window_icon(Some(Icon::from_rgba(icon.into_bytes(), width, height)?));
+    } else {
+        eprintln!("Icon not found in executable folder, none will be used.")
     }
 
     let _webview = WebViewBuilder::new(window)?

@@ -1,5 +1,5 @@
 pub use clap::Parser;
-use std::path::PathBuf;
+use std::path::{PathBuf, Path};
 use url::Url;
 
 const fn def_false() -> bool {
@@ -21,37 +21,42 @@ const fn def_width() -> u32 {
 pub struct AppSettings {
     /// The URL that you wish to to turn into a native app.
     #[clap()]
+    #[serde()]
     pub target_url: String,
-
+    
     /// The directory to generate the app in.
     ///
     /// If not specified, the current directory will be used.
     #[clap(short, long, default_value = ".")]
     #[serde(skip)]
     pub output_dir: PathBuf,
-
+    
     /// Title of the app.
     ///
     /// If not specified, Naty will try to extract it from the TARGET_URL.
     #[clap(short, long)]
+    #[serde()]
     pub name: Option<String>,
-
+    
     /// The operating systems to build for.
     #[clap(short, long, value_enum)]
     #[serde(skip)]
     pub platforms: Vec<Platform>,
-
-    /// Icon of the app, it must be in a ".png" format.
+    
+    /// Icon of the app, must be a ".png" file.
     ///
+    /// Can be either a path to a local file or a URL.
+    /// 
     /// If not provided, Naty will try to extract it from the TARGET_URL.
     #[clap(short, long)]
-    pub icon: Option<PathBuf>,
-
+    #[serde(skip)]
+    pub icon: Option<String>,
+    
     /// Enable always on top window.
-    #[serde(default = "def_false")]
     #[clap(long)]
+    #[serde(default = "def_false")]
     pub always_on_top: bool,
-
+    
     /// Always start the app in full screen.
     #[clap(long)]
     #[serde(default = "def_false")]
@@ -71,7 +76,7 @@ pub struct AppSettings {
     #[clap(long)]
     #[serde(default = "def_false")]
     pub hide_window_frame: bool,
-
+    
     /// WIP: At the moment it does nothing.
     #[clap(long)]
     #[serde(default = "def_false")]
@@ -81,12 +86,12 @@ pub struct AppSettings {
     #[clap(long, default_value_t = u32::MAX)]
     #[serde(default = "u32::max_value")]
     pub max_width: u32,
-
+    
     /// Set window maximum height in pixels.
     #[clap(long, default_value_t = u32::MAX)]
     #[serde(default = "u32::max_value")]
     pub max_height: u32,
-
+    
     /// Set window minimum width in pixels.
     #[clap(long, default_value_t = u32::MIN)]
     #[serde(default = "u32::min_value")]
@@ -96,7 +101,7 @@ pub struct AppSettings {
     #[clap(long, default_value_t = u32::MIN)]
     #[serde(default = "u32::min_value")]
     pub min_height: u32,
-
+    
     /// Hides taskbar icon.
     ///
     /// The window can't be minimized.
@@ -129,19 +134,6 @@ pub enum Platform {
     Linux,
     Windows,
     MacOs,
-}
-
-#[derive(Clone, Debug, PartialEq, Eq, serde::Serialize, serde::Deserialize, clap::Subcommand)]
-pub enum Command {
-    Linux {
-        command: String
-    },
-    Windows {
-        command: String
-    },
-    MacOs {
-        command: String
-    }
 }
 
 impl From<&str> for Platform {
