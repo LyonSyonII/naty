@@ -37,7 +37,7 @@ pub struct AppSettings {
     pub name: Option<String>,
 
     /// The operating systems to build for.
-    #[clap(short, long, arg_enum)]
+    #[clap(short, long, value_enum)]
     #[serde(skip)]
     pub platforms: Vec<Platform>,
 
@@ -103,18 +103,45 @@ pub struct AppSettings {
     #[clap(long)]
     #[serde()]
     pub hide_taskbar_icon: bool,
-
-    /// Runs the command before spawing a window, useful for starting web servers for WebApps.
-    #[clap(short, long)]
+    
+    /// LINUX: Command to run before spawing a window, useful for starting web servers for WebApps.
+    #[clap(long = "command_linux")]
+    #[serde(skip)]
+    pub linux_command: Option<String>,
+    
+    /// WINDOWS: Command to run before spawing a window, useful for starting web servers for WebApps.
+    #[clap(long = "command_windows")]
+    #[serde(skip)]
+    pub windows_command: Option<String>,
+    
+    /// MACOS: Command to run before spawing a window, useful for starting web servers for WebApps.
+    #[clap(long = "command_macos")]
+    #[serde(skip)]
+    pub macos_command: Option<String>,
+    
+    /// Command to run before spawning a window, useful for starting web servers for WebApps.
     #[serde()]
     pub command: Option<String>
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, serde::Serialize, clap::ArgEnum)]
+#[derive(Clone, Debug, PartialEq, Eq, serde::Serialize, clap::ValueEnum)]
 pub enum Platform {
     Linux,
     Windows,
     MacOs,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, serde::Serialize, serde::Deserialize, clap::Subcommand)]
+pub enum Command {
+    Linux {
+        command: String
+    },
+    Windows {
+        command: String
+    },
+    MacOs {
+        command: String
+    }
 }
 
 impl From<&str> for Platform {

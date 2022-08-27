@@ -119,7 +119,8 @@ async fn setup_executable(
     let out_dir_name = format!("{}-{platform}", &name);
     let output_dir = cli.output_dir.join(&out_dir_name);
     std::fs::create_dir_all(&output_dir).expect("Could not create directory");
-
+    
+    // TODO! Fix when icon is not found and default is used
     match &cli.icon {
         Some(icon) => {
             std::fs::copy(
@@ -167,7 +168,7 @@ async fn setup_executable(
 
 async fn run_async() -> std::io::Result<()> {
     let mut cli: AppSettings = AppSettings::parse();
-
+    
     if cli.platforms.is_empty() {
         cli.platforms.push(std::env::consts::OS.into())
     }
@@ -177,12 +178,15 @@ async fn run_async() -> std::io::Result<()> {
     for platform in platforms {
         match platform {
             Platform::Linux => {
+                cli.command = cli.linux_command.clone();
                 setup_executable(LINUX, "linux", &mut cli).await?;
             }
             Platform::Windows => {
+                cli.command = cli.windows_command.clone();
                 setup_executable(WIN, "windows", &mut cli).await?;
             }
             Platform::MacOs => {
+                cli.command = cli.macos_command.clone();
                 setup_executable(MACOS, "macos", &mut cli).await?;
             }
         }
