@@ -1,6 +1,7 @@
 pub use clap::Parser;
 use std::path::{PathBuf};
 use url::Url;
+use serde_derive::{Serialize, Deserialize};
 
 const fn def_false() -> bool {
     false
@@ -16,7 +17,7 @@ const fn def_width() -> u32 {
     1280
 }
 
-#[derive(serde::Deserialize, serde::Serialize, Parser, Debug, Clone)]
+#[derive(Deserialize, Serialize, Parser, Debug, Clone)]
 #[clap(name = "naty", author, version, about)]
 pub struct AppSettings {
     /// The URL that you wish to to turn into a native app.
