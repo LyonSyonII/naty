@@ -7,8 +7,6 @@ license = "MIT"
 repository = "https://github.com/LyonSyonII/naty"
 documentation = "https://github.com/LyonSyonII/naty"
 
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
-
 [dependencies]
 clap = { version = "3.2.17", features = ["derive"] }
 serde = "1.0.144"

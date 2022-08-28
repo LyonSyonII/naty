@@ -6,6 +6,7 @@ description = "Nativefier alternative that provides a WebView of any website wit
 license = "MIT"
 repository = "https://github.com/LyonSyonII/naty"
 documentation = "https://github.com/LyonSyonII/naty"
+keywords = ["nativefier", "webview", "naty", "webpage", "browser"]
 
 [dependencies]
 naty_app = { version = "0.3.0", path = "naty_app" }
