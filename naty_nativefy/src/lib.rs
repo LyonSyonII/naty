@@ -5,7 +5,7 @@ use std::path::{Path, PathBuf};
 const LINUX: &str = "https://github.com/LyonSyonII/naty/releases/download/v%version%/naty-linux";
 const WIN: &str = "https://github.com/LyonSyonII/naty/releases/download/v%version%/naty-windows.exe";
 const MACOS: &str = "https://github.com/LyonSyonII/naty/releases/download/v%version%/naty-macos";
-const ICON: &[u8] = include_bytes!("../../logos/icon.png");
+const ICON: &[u8] = include_bytes!("icon.png");
 
 #[cfg(target_family = "windows")]
 pub fn copy_executable(output_dir: &Path, name: &str) -> std::io::Result<u64> {

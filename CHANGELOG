@@ -1,5 +1,5 @@
 ##############
-#   0.2.2   #
+#   0.3.1    #
 ##############
 - Fixed binary downloads when the file already exists
 - Fixed window freezes in certain occasions
