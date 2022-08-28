@@ -2,9 +2,9 @@ use naty_common::{AppSettings, Parser, Platform};
 use site_icons::{Icon, IconInfo, IconKind};
 use std::path::{Path, PathBuf};
 
-const LINUX: &str = "https://github.com/LyonSyonII/naty/releases/download/v%version%/naty-linux";
-const WIN: &str = "https://github.com/LyonSyonII/naty/releases/download/v%version%/naty-windows.exe";
-const MACOS: &str = "https://github.com/LyonSyonII/naty/releases/download/v%version%/naty-macos";
+const LINUX: &str = "https://github.com/lyonsyonii/naty/releases/latest/download/naty-linux";
+const WIN: &str = "https://github.com/lyonsyonii/naty/releases/latest/download/naty-windows.exe";
+const MACOS: &str = "https://github.com/lyonsyonii/naty/releases/latest/download/naty-macos";
 const ICON: &[u8] = include_bytes!("icon.png");
 
 #[cfg(target_family = "windows")]
@@ -104,10 +104,10 @@ async fn setup_executable(
     name: Option<&str>,
     output_dir: &Path,
     icon: &[u8],
-    naty_executable_url: impl AsRef<str>,
+    naty_bin_url: impl AsRef<str>,
     platform: impl AsRef<str>,
 ) -> std::io::Result<PathBuf> {
-    let naty_exe_url = naty_executable_url.as_ref();
+    let naty_bin_url = naty_bin_url.as_ref();
     let mut platform = platform.as_ref();
     if platform.is_empty() {
         platform = std::env::consts::OS;
@@ -126,12 +126,11 @@ async fn setup_executable(
     if platform == std::env::consts::OS {
         copy_executable(&output_dir, &name)?;
     } else {
-        let download_url = naty_exe_url.replace("%version%", env!("CARGO_PKG_VERSION"));
         download_file(
-            &download_url,
+            &naty_bin_url,
             &output_dir,
             &name,
-            format!("Downloading {platform} binary from {download_url}"),
+            format!("Downloading {platform} binary from {naty_bin_url}"),
         )
         .await?;
     }

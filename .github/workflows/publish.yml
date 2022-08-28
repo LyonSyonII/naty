@@ -20,7 +20,7 @@ jobs:
           - name: windows
             os: windows-latest
             artifact_name: target/release/naty.exe
-            asset_name: naty-windows
+            asset_name: naty-windows.exe
           - name: macos
             os: macos-latest
             artifact_name: target/release/naty
@@ -43,7 +43,7 @@ jobs:
       run: sudo apt install -y libwebkit2gtk-4.0-dev libappindicator3-dev
       
     - name: Build
-      run: cargo build --release --locked
+      run: cargo build --release --locked/LyonSyonII/naty/actions/runs/2943183697
 
     - name: Upload artifacts
       uses: actions/upload-artifact@v2
