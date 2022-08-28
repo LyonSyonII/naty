@@ -1516,7 +1516,7 @@ dependencies = [
 
 [[package]]
 name = "naty"
-version = "0.2.1"
+version = "0.3.0"
 dependencies = [
  "naty_app",
  "naty_common",
@@ -1525,7 +1525,7 @@ dependencies = [
 
 [[package]]
 name = "naty_app"
-version = "0.2.1"
+version = "0.3.0"
 dependencies = [
  "image",
  "naty_common",
@@ -1535,7 +1535,7 @@ dependencies = [
 
 [[package]]
 name = "naty_common"
-version = "0.2.1"
+version = "0.3.0"
 dependencies = [
  "clap",
  "serde",
@@ -1544,7 +1544,7 @@ dependencies = [
 
 [[package]]
 name = "naty_nativefy"
-version = "0.2.1"
+version = "0.3.0"
 dependencies = [
  "downloader",
  "naty_common",
