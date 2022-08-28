@@ -1535,7 +1535,7 @@ dependencies = [
 
 [[package]]
 name = "naty_common"
-version = "0.3.2"
+version = "0.3.5"
 dependencies = [
  "clap",
  "serde",

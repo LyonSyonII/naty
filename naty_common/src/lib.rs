@@ -100,7 +100,7 @@ pub struct AppSettings {
 
     /// Set window minimum height in pixels.
     #[clap(long, default_value_t = u32::MIN)]
-    #[serde(default = "u32::min_value")]
+    #[serde(default = "u32::min_value")]///
     pub min_height: u32,
     
     /// LINUX: Command to run before spawing a window, useful for starting web servers for WebApps.
