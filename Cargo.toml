@@ -1,6 +1,6 @@
 [package]
 name = "naty"
-version = "0.3.1"
+version = "0.3.2"
 edition = "2021"
 description = "Nativefier alternative that provides a WebView of any website with a minimal install size"
 license = "MIT"
