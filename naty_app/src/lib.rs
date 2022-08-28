@@ -7,7 +7,6 @@ use wry::{
         event::{Event, WindowEvent},
         event_loop::ControlFlow,
         menu::MenuBar,
-        platform::unix::WindowBuilderExtUnix,
         window::Icon,
         window::{self, WindowBuilder},
     },
