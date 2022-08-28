@@ -103,12 +103,6 @@ pub struct AppSettings {
     #[serde(default = "u32::min_value")]
     pub min_height: u32,
     
-    /// Hides taskbar icon.
-    ///
-    /// The window can't be minimized.
-    #[clap(long)]
-    pub hide_taskbar_icon: bool,
-    
     /// LINUX: Command to run before spawing a window, useful for starting web servers for WebApps.
     #[clap(long = "command_linux")]
     #[serde(skip)]

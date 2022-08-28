@@ -8,7 +8,7 @@ use wry::{
         event_loop::ControlFlow,
         menu::MenuBar,
         window::Icon,
-        window::{self, WindowBuilder},
+        window::{self, WindowBuilder}
     },
     webview::WebViewBuilder,
 };
@@ -43,7 +43,8 @@ pub fn run(mut file: std::fs::File) -> wry::Result<()> {
     });
 
     let name = naty_common::get_webpage_name(settings.name.as_deref(), &url);
-    let window = WindowBuilder::new()
+    let window = 
+        WindowBuilder::new()
         .with_title(name)
         .with_always_on_top(settings.always_on_top)
         .with_fullscreen(
@@ -64,7 +65,6 @@ pub fn run(mut file: std::fs::File) -> wry::Result<()> {
             settings.min_height,
         )))
         .with_decorations(!settings.hide_window_frame)
-        .with_skip_taskbar(settings.hide_taskbar_icon)
         .build(&event_loop)?;
     window.set_menu(settings.show_menu_bar.then_some(MenuBar::new()));
     
