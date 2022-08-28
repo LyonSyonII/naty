@@ -1,4 +1,9 @@
 ##############
+#   0.3.9    #
+##############
+- `command` will now be killed when application is closed
+
+##############
 #   0.3.3    #
 ##############
 - Removed wrongly imported `platform::unix::WindowBuilderExtUnix` 

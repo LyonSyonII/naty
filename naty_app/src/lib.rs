@@ -8,7 +8,7 @@ use wry::{
         event_loop::ControlFlow,
         menu::MenuBar,
         window::Icon,
-        window::{self, WindowBuilder}
+        window::{self, WindowBuilder}, platform::unix::x11::ffi::XkbCompatGrabModsMask
     },
     webview::WebViewBuilder,
 };
@@ -37,7 +37,7 @@ pub fn run(mut file: std::fs::File) -> wry::Result<()> {
         std::process::exit(1)
     });
     
-    settings.command.and_then(|cmd| {
+    let mut command = settings.command.and_then(|cmd| {
         let mut cmd = cmd.split_whitespace();
         std::process::Command::new(cmd.next()?).args(cmd.collect::<Vec<_>>()).spawn().ok()
     });
@@ -91,6 +91,10 @@ pub fn run(mut file: std::fs::File) -> wry::Result<()> {
         } = event
         {
             *control_flow = ControlFlow::Exit;
+            // If application exited, kill command
+            if let Some(command) = &mut command {
+                command.kill();
+            }
         }
     });
 }

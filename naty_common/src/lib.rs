@@ -104,17 +104,17 @@ pub struct AppSettings {
     pub min_height: u32,
     
     /// LINUX: Command to run before spawing a window, useful for starting web servers for WebApps.
-    #[clap(long = "command_linux")]
+    #[clap(long = "command-linux")]
     #[serde(skip)]
     pub linux_command: Option<String>,
     
     /// WINDOWS: Command to run before spawing a window, useful for starting web servers for WebApps.
-    #[clap(long = "command_windows")]
+    #[clap(long = "command-windows")]
     #[serde(skip)]
     pub windows_command: Option<String>,
     
     /// MACOS: Command to run before spawing a window, useful for starting web servers for WebApps.
-    #[clap(long = "command_macos")]
+    #[clap(long = "command-macos")]
     #[serde(skip)]
     pub macos_command: Option<String>,
     
