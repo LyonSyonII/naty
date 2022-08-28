@@ -1,6 +1,6 @@
 [package]
 name = "naty_app"
-version = "0.3.2"
+version = "0.3.8"
 authors = ["Liam Garriga <l.garriga.r@tutanota.com>"]
 edition = "2021"
 description = "Nativefier alternative that provides a WebView of any website with a minimal install size"
@@ -9,7 +9,7 @@ repository = "https://github.com/LyonSyonII/naty"
 documentation = "https://github.com/LyonSyonII/naty"
 
 [dependencies]
-naty_common = { version = "0.3.1", path = "../naty_common" }
+naty_common = { version = "0.3.8", path = "../naty_common" }
 wry = "0.20.2"
 image = "0.24.3"
 toml = "0.5.9"

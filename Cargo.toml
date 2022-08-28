@@ -1,6 +1,6 @@
 [package]
 name = "naty"
-version = "0.3.6"
+version = "0.3.8"
 edition = "2021"
 description = "Nativefier alternative that provides a WebView of any website with a minimal install size"
 license = "MIT"
@@ -9,9 +9,9 @@ documentation = "https://github.com/LyonSyonII/naty"
 keywords = ["nativefier", "webview", "naty", "webpage", "browser"]
 
 [dependencies]
-naty_app = { version = "0.3.1", path = "naty_app" }
-naty_nativefy = { version = "0.3.1", path = "naty_nativefy" }
-naty_common = { version = "0.3.1", path = "naty_common" }
+naty_app = { version = "0.3.8", path = "naty_app" }
+naty_nativefy = { version = "0.3.8", path = "naty_nativefy" }
+naty_common = { version = "0.3.8", path = "naty_common" }
 
 [profile.release]
 strip = true
