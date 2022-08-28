@@ -8,7 +8,7 @@ use wry::{
         event_loop::ControlFlow,
         menu::MenuBar,
         window::Icon,
-        window::{self, WindowBuilder}, platform::unix::x11::ffi::XkbCompatGrabModsMask
+        window::{self, WindowBuilder}
     },
     webview::WebViewBuilder,
 };
