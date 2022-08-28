@@ -43,7 +43,7 @@ jobs:
       run: sudo apt install -y libwebkit2gtk-4.0-dev libappindicator3-dev
       
     - name: Build
-      run: cargo build --release --locked/LyonSyonII/naty/actions/runs/2943183697
+      run: cargo build --release --locked
 
     - name: Upload artifacts
       uses: actions/upload-artifact@v2
