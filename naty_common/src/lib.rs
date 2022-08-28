@@ -1,5 +1,5 @@
 pub use clap::Parser;
-use std::path::{PathBuf, Path};
+use std::path::{PathBuf};
 use url::Url;
 
 const fn def_false() -> bool {
@@ -16,7 +16,7 @@ const fn def_width() -> u32 {
     1280
 }
 
-#[derive(Parser, serde::Serialize, serde::Deserialize, Debug, Clone)]
+#[derive(serde::Deserialize, serde::Serialize, Parser, Debug, Clone)]
 #[clap(name = "naty", author, version, about)]
 pub struct AppSettings {
     /// The URL that you wish to to turn into a native app.
@@ -106,7 +106,6 @@ pub struct AppSettings {
     ///
     /// The window can't be minimized.
     #[clap(long)]
-    #[serde()]
     pub hide_taskbar_icon: bool,
     
     /// LINUX: Command to run before spawing a window, useful for starting web servers for WebApps.
@@ -125,11 +124,10 @@ pub struct AppSettings {
     pub macos_command: Option<String>,
     
     /// Command to run before spawning a window, useful for starting web servers for WebApps.
-    #[serde()]
     pub command: Option<String>
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, serde::Serialize, clap::ValueEnum)]
+#[derive(Clone, Debug, PartialEq, Eq, clap::ValueEnum)]
 pub enum Platform {
     Linux,
     Windows,

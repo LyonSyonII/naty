@@ -10,6 +10,6 @@ documentation = "https://github.com/LyonSyonII/naty"
 
 [dependencies]
 naty_common = { version = "0.2.1", path = "../naty_common" }
-wry = "0.20.0"
+wry = "0.20.2"
 image = "0.24.3"
 toml = "0.5.9"
