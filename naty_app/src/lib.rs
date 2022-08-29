@@ -37,6 +37,8 @@ pub fn run(mut file: std::fs::File) -> wry::Result<()> {
         std::process::exit(1)
     });
     
+    
+
     let mut command = settings.command.and_then(|cmd| {
         let mut cmd = cmd.split_whitespace();
         std::process::Command::new(cmd.next()?).args(cmd.collect::<Vec<_>>()).spawn().ok()
@@ -92,8 +94,12 @@ pub fn run(mut file: std::fs::File) -> wry::Result<()> {
         {
             *control_flow = ControlFlow::Exit;
             // If application exited, kill command
-            if let Some(command) = &mut command {
-                command.kill();
+            if let Some(command) = command.as_mut() {
+                let res = command.kill();
+                match res {
+                    Ok(_) => {},
+                    Err(e) => println!("error: {e}"),
+                }
             }
         }
     });
