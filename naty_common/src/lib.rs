@@ -1,7 +1,5 @@
-pub use clap::Parser;
 use std::path::{PathBuf};
 use url::Url;
-use serde_derive::{Serialize, Deserialize};
 
 const fn def_false() -> bool {
     false
@@ -17,30 +15,35 @@ const fn def_width() -> u32 {
     1280
 }
 
-#[derive(Deserialize, Serialize, Parser, Debug, Clone)]
-#[clap(name = "naty", author, version, about)]
+#[cfg(feature = "clap")]
+pub use clap::Parser;
+
+#[derive(serde::Deserialize, serde::Serialize)]
+#[derive(Debug, Clone)]
+#[cfg_attr(feature = "clap", derive(clap::Parser))]
+#[cfg_attr(feature = "clap", clap(name = "naty", author, version, about))]
 pub struct AppSettings {
     /// The URL that you wish to to turn into a native app.
-    #[clap()]
+    #[cfg_attr(feature = "clap", clap())]
     #[serde()]
     pub target_url: String,
     
     /// The directory to generate the app in.
     ///
     /// If not specified, the current directory will be used.
-    #[clap(short, long, default_value = ".")]
+    #[cfg_attr(feature = "clap", clap(short, long, default_value = "."))]
     #[serde(skip)]
     pub output_dir: PathBuf,
     
     /// Title of the app.
     ///
     /// If not specified, Naty will try to extract it from the TARGET_URL.
-    #[clap(short, long)]
+    #[cfg_attr(feature = "clap", clap(short, long))]
     #[serde()]
     pub name: Option<String>,
     
     /// The operating systems to build for.
-    #[clap(short, long, value_enum)]
+    #[cfg_attr(feature = "clap", clap(short, long, value_enum))]
     #[serde(skip)]
     pub platforms: Vec<Platform>,
     
@@ -49,80 +52,82 @@ pub struct AppSettings {
     /// Can be either a path to a local file or a URL.
     /// 
     /// If not provided, Naty will try to extract it from the TARGET_URL.
-    #[clap(short, long)]
+    #[cfg_attr(feature = "clap", clap(short, long))]
     #[serde(skip)]
     pub icon: Option<String>,
     
     /// Enable always on top window.
-    #[clap(long)]
+    #[cfg_attr(feature = "clap", clap(long))]
     #[serde(default = "def_false")]
     pub always_on_top: bool,
     
     /// Always start the app in full screen.
-    #[clap(long)]
+    #[cfg_attr(feature = "clap", clap(long))]
     #[serde(default = "def_false")]
     pub full_screen: bool,
 
     /// App window default height in pixels.
-    #[clap(long, default_value_t = def_height())]
+    #[cfg_attr(feature = "clap", clap(long, default_value_t = def_height()))]
     #[serde(default = "def_height")]
     pub height: u32,
 
     /// App window default width in pixels.
-    #[clap(long, default_value_t = def_width())]
+    #[cfg_attr(feature = "clap", clap(long, default_value_t = def_width()))]
     #[serde(default = "def_width")]
     pub width: u32,
 
     /// Disable window frame and controls.
-    #[clap(long)]
+    #[cfg_attr(feature = "clap", clap(long))]
     #[serde(default = "def_false")]
     pub hide_window_frame: bool,
     
     /// WIP: At the moment it does nothing.
-    #[clap(long)]
+    #[cfg_attr(feature = "clap", clap(long))]
     #[serde(default = "def_false")]
     pub show_menu_bar: bool,
 
     /// Set window maximum width in pixels.
-    #[clap(long, default_value_t = u32::MAX)]
+    #[cfg_attr(feature = "clap", clap(long, default_value_t = u32::MAX))]
     #[serde(default = "u32::max_value")]
     pub max_width: u32,
     
     /// Set window maximum height in pixels.
-    #[clap(long, default_value_t = u32::MAX)]
+    #[cfg_attr(feature = "clap", clap(long, default_value_t = u32::MAX))]
     #[serde(default = "u32::max_value")]
     pub max_height: u32,
     
     /// Set window minimum width in pixels.
-    #[clap(long, default_value_t = u32::MIN)]
+    #[cfg_attr(feature = "clap", clap(long, default_value_t = u32::MIN))]
     #[serde(default = "u32::min_value")]
     pub min_width: u32,
 
     /// Set window minimum height in pixels.
-    #[clap(long, default_value_t = u32::MIN)]
+    #[cfg_attr(feature = "clap", clap(long, default_value_t = u32::MIN))]
     #[serde(default = "u32::min_value")]///
     pub min_height: u32,
     
     /// LINUX: Command to run before spawing a window, useful for starting web servers for WebApps.
-    #[clap(long = "command-linux")]
+    #[cfg_attr(feature = "clap", clap(long = "command-linux"))]
     #[serde(skip)]
     pub linux_command: Option<String>,
     
     /// WINDOWS: Command to run before spawing a window, useful for starting web servers for WebApps.
-    #[clap(long = "command-windows")]
+    #[cfg_attr(feature = "clap", clap(long = "command-windows"))]
     #[serde(skip)]
     pub windows_command: Option<String>,
     
     /// MACOS: Command to run before spawing a window, useful for starting web servers for WebApps.
-    #[clap(long = "command-macos")]
+    #[cfg_attr(feature = "clap", clap(long = "command-macos"))]
     #[serde(skip)]
     pub macos_command: Option<String>,
     
+    #[serde()]
     /// Command to run before spawning a window, useful for starting web servers for WebApps.
     pub command: Option<String>
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, clap::ValueEnum)]
+#[derive(Clone, Debug, PartialEq, Eq)]
+#[cfg_attr(feature = "clap", derive(clap::ValueEnum))]
 pub enum Platform {
     Linux,
     Windows,
