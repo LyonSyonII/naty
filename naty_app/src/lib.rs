@@ -8,7 +8,7 @@ use wry::{
         event_loop::ControlFlow,
         menu::MenuBar,
         window::Icon,
-        window::{self, WindowBuilder}
+        window::{self, WindowBuilder},
     },
     webview::WebViewBuilder,
 };
@@ -28,25 +28,29 @@ pub fn run(mut file: std::fs::File) -> wry::Result<()> {
     let mut buffer = String::new();
     file.read_to_string(&mut buffer)?;
     drop(file);
-    
+
     let settings: AppSettings = toml::from_str(&buffer).unwrap();
     let event_loop = application::event_loop::EventLoop::new();
-    
-    let url: wry::webview::Url = settings.target_url.as_str().try_into().unwrap_or_else(|err| {
-        println!("Error parsing the url: {err}");
-        std::process::exit(1)
-    });
-    
-    
+
+    let url: wry::webview::Url = settings
+        .target_url
+        .as_str()
+        .try_into()
+        .unwrap_or_else(|err| {
+            println!("Error parsing the url: {err}");
+            std::process::exit(1)
+        });
 
     let mut command = settings.command.and_then(|cmd| {
         let mut cmd = cmd.split_whitespace();
-        std::process::Command::new(cmd.next()?).args(cmd.collect::<Vec<_>>()).spawn().ok()
+        std::process::Command::new(cmd.next()?)
+            .args(cmd.collect::<Vec<_>>())
+            .spawn()
+            .ok()
     });
 
     let name = naty_common::get_webpage_name(settings.name.as_deref(), &url);
-    let window = 
-        WindowBuilder::new()
+    let window = WindowBuilder::new()
         .with_title(name)
         .with_always_on_top(settings.always_on_top)
         .with_fullscreen(
@@ -69,7 +73,7 @@ pub fn run(mut file: std::fs::File) -> wry::Result<()> {
         .with_decorations(!settings.hide_window_frame)
         .build(&event_loop)?;
     window.set_menu(settings.show_menu_bar.then_some(MenuBar::new()));
-    
+
     // Add icon to executable
     if let Ok(icon) = std::fs::read(naty_common::get_exe_path().join("icon.png")) {
         let icon = image::load_from_memory(&icon).unwrap();
@@ -97,7 +101,7 @@ pub fn run(mut file: std::fs::File) -> wry::Result<()> {
             if let Some(command) = command.as_mut() {
                 let res = command.kill();
                 match res {
-                    Ok(_) => {},
+                    Ok(_) => {}
                     Err(e) => println!("error: {e}"),
                 }
             }

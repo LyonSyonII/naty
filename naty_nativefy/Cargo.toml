@@ -9,12 +9,12 @@ documentation = "https://github.com/LyonSyonII/naty"
 
 [dependencies]
 naty_common = { version = "0.3.8", path = "../naty_common", features = ["clap"] }
-toml = "0.5.9"
-tokio = { version = "1.20.1", features = ["rt"] }
-downloader = { version = "0.2.6", features = ["tui"] }
-site_icons = "0.1.13"
-url = "2.2.2"
-reqwest-wasm = "0.11.0"
+toml = "0.7.3"
+tokio = { version = "1.26.0", features = ["rt"] }
+downloader = { version = "0.2.7" }
+site_icons = "0.6.4"
+url = "2.3.1"
+reqwest-wasm = "0.11.16"
 
 [profile.release]
 strip = true

@@ -51,34 +51,25 @@ async fn download_webpage_icon(
     let output_dir = output_dir.as_ref().to_owned();
     let url = url.as_ref();
 
-    let mut icons = site_icons::Icons::new();
-    icons.load_website(url).await.unwrap_or_else(|e| {
-        println!("Error");
-        match e.downcast::<reqwest_wasm::Error>() {
-            Ok(error) => println!("Extracted error: {error}"),
-            Err(not) => {
-                println!("Not extracted: {}", not);
-            }
-        }
-    });
-    let entries = icons.entries().await;
+    let mut icons = site_icons::SiteIcons::new();
+    let entries = icons
+        .load_website(url, false)
+        .await
+        .unwrap_or_else(|_| Vec::new());
     println!("Available icons: {:?}", entries);
+
     // Get icon of higher size with: width == height && !Favicon && !SVG
-    let mut best_icon: Option<Icon> = None;
-    for icon in entries {
-        if let Some(sizes) = icon.info.sizes() {
+    let best_icon = entries.into_iter().find(|icon| match icon.info.sizes() {
+        Some(sizes) => {
             let size = sizes.first();
-            let (width, height) = (size.width, size.height);
-            if width == height && icon.kind != IconKind::SiteFavicon && icon.info != IconInfo::SVG {
-                best_icon = Some(icon);
-                break;
-            }
+            size.height == size.width
+                && icon.kind != IconKind::SiteFavicon
+                && !matches!(icon.info, IconInfo::SVG { .. })
         }
-    }
+        None => false,
+    });
 
     if let Some(icon) = best_icon {
-        let url = icon.url.as_str().to_owned();
-
         let output_file = output_dir.join("icon.png");
         if output_file.exists() {
             std::fs::remove_file(output_file)?;
@@ -86,7 +77,7 @@ async fn download_webpage_icon(
 
         return tokio::task::spawn_blocking(|| {
             println!("Icon Output directory: {}", output_dir.display());
-            download_file(url, output_dir, "icon.png", "Downloading icon...")
+            download_file(icon.url, output_dir, "icon.png", "Downloading icon...")
         })
         .await
         .unwrap()
@@ -117,7 +108,7 @@ async fn setup_executable(
         println!("Error parsing the url: {err}");
         std::process::exit(1)
     });
-    
+
     let name = naty_common::get_webpage_name(name, &url);
     let out_dir_name = format!("{}-{platform}", &name);
     let output_dir = output_dir.join(&out_dir_name);
@@ -134,7 +125,7 @@ async fn setup_executable(
         )
         .await?;
     }
-    
+
     std::fs::write(output_dir.join("icon.png"), icon)?;
 
     Ok(output_dir)
@@ -142,23 +133,56 @@ async fn setup_executable(
 
 async fn run_async() -> std::io::Result<()> {
     let mut cli: AppSettings = AppSettings::parse();
+
+    let msg = |p| {
+        println!("Error: You've specified a {p} specific option without selecting it as a target platform.\n       Maybe you forgot to add it to '--platforms'?")
+    };
     
+    let checks = [
+        (
+            Platform::Linux,
+            cli.linux_command.is_some()
+                || cli.no_desktop
+                || cli.desktop_entry_path != "~/.local/share/applications",
+            "LINUX",
+        ),
+        (Platform::Windows, cli.windows_command.is_some(), "WINDOWS"),
+        (Platform::MacOs, cli.macos_command.is_some(), "MACOS"),
+    ];
+
+    for (platform, check, name) in checks {
+        if !cli.platforms.contains(&platform) && check {
+            msg(name);
+            std::process::exit(1);
+        }
+    }
+
     if cli.platforms.is_empty() {
         cli.platforms.push(std::env::consts::OS.into())
     }
     cli.platforms.dedup();
-    
+
     let icon: std::borrow::Cow<[u8]> = match &cli.icon {
         // Icon is a URL
-        Some(url) if download_file(url, &cli.output_dir, "icon.png", "Downloading icon from '{url}'...").await.is_ok() => {
+        Some(url)
+            if download_file(
+                url,
+                &cli.output_dir,
+                "icon.png",
+                "Downloading icon from '{url}'...",
+            )
+            .await
+            .is_ok() =>
+        {
             std::fs::read(cli.output_dir.join("icon.png"))?.into()
         }
         // Icon is a Path
-        Some(icon) => {
-            std::fs::read(icon).unwrap().into()
-        }
+        Some(icon) => std::fs::read(icon).unwrap().into(),
         // Icon is extracted from website
-        None if download_webpage_icon(&cli.target_url, &cli.output_dir).await.is_ok() => {
+        None if download_webpage_icon(&cli.target_url, &cli.output_dir)
+            .await
+            .is_ok() =>
+        {
             std::fs::read(cli.output_dir.join("icon.png"))?.into()
         }
         // Using fallback icon
@@ -170,27 +194,51 @@ async fn run_async() -> std::io::Result<()> {
             ICON.into()
         }
     };
-    
+
     let platforms = cli.platforms.clone();
     for platform in platforms {
         let output_dir = match platform {
             Platform::Linux => {
                 cli.command = cli.linux_command.clone();
-                setup_executable(&cli.target_url, cli.name.as_deref(), &cli.output_dir, &icon, LINUX,"linux", ).await?
+                setup_executable(
+                    &cli.target_url,
+                    cli.name.as_deref(),
+                    &cli.output_dir,
+                    &icon,
+                    LINUX,
+                    "linux",
+                )
+                .await?
             }
             Platform::Windows => {
                 cli.command = cli.windows_command.clone();
-                setup_executable(&cli.target_url, cli.name.as_deref(), &cli.output_dir, &icon, WIN, "windows").await?
+                setup_executable(
+                    &cli.target_url,
+                    cli.name.as_deref(),
+                    &cli.output_dir,
+                    &icon,
+                    WIN,
+                    "windows",
+                )
+                .await?
             }
             Platform::MacOs => {
                 cli.command = cli.macos_command.clone();
-                setup_executable(&cli.target_url, cli.name.as_deref(), &cli.output_dir, &icon, MACOS, "macos", ).await?
+                setup_executable(
+                    &cli.target_url,
+                    cli.name.as_deref(),
+                    &cli.output_dir,
+                    &icon,
+                    MACOS,
+                    "macos",
+                )
+                .await?
             }
         };
 
         let settings = toml::to_string_pretty(&cli).unwrap();
         std::fs::write(output_dir.join("naty.toml"), settings).expect("Could not create naty.toml");
-        
+
         println!(
             "Successfully created \"{}\" in {}",
             output_dir.file_name().unwrap().to_string_lossy(),
