@@ -8,9 +8,9 @@ repository = "https://github.com/LyonSyonII/naty"
 documentation = "https://github.com/LyonSyonII/naty"
 
 [dependencies]
-clap = { version = "4.1.10", features = ["derive"], optional = true }
-serde = { version = "1.0.157", features = ["derive"] }
-url = "2.3.1"
+clap = { version = "4.5.7", features = ["derive"], optional = true }
+serde = { version = "1.0.203", features = ["derive"] }
+url = "2.5.1"
 
 [features]
 default = []

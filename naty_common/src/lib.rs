@@ -77,25 +77,16 @@ pub struct AppSettings {
     pub show_menu_bar: bool,
 
     /// Set window maximum width in pixels.
-    #[cfg_attr(feature = "clap", clap(long, default_value_t = u32::MAX))]
-    #[serde(default = "u32::max_value")]
-    pub max_width: u32,
+    pub max_width: Option<u32>,
 
     /// Set window maximum height in pixels.
-    #[cfg_attr(feature = "clap", clap(long, default_value_t = u32::MAX))]
-    #[serde(default = "u32::max_value")]
-    pub max_height: u32,
+    pub max_height: Option<u32>,
 
     /// Set window minimum width in pixels.
-    #[cfg_attr(feature = "clap", clap(long, default_value_t = u32::MIN))]
-    #[serde(default = "u32::min_value")]
-    pub min_width: u32,
+    pub min_width: Option<u32>,
 
     /// Set window minimum height in pixels.
-    #[cfg_attr(feature = "clap", clap(long, default_value_t = u32::MIN))]
-    #[serde(default = "u32::min_value")]
-    ///
-    pub min_height: u32,
+    pub min_height: Option<u32>,
 
     /// LINUX: Command to run before spawing a window, useful for starting web servers for WebApps.
     #[cfg_attr(feature = "clap", clap(long = "command-linux"))]
@@ -164,14 +155,21 @@ pub fn maybe_remove<'i>(
     result
 }
 
-pub fn get_webpage_name<'i>(name: Option<&'i str>, url: &'i Url) -> std::borrow::Cow<'i, str> {
+pub fn get_webpage_name<'i>(name: Option<&'i str>, url: &'i str) -> std::borrow::Cow<'i, str> {
     if let Some(name) = name {
         return name.into();
     }
 
+    let url: Url = url.try_into()
+    .unwrap_or_else(|err| {
+        println!("Error parsing the url: {err}");
+        std::process::exit(1)
+    });
+
     url.domain()
         .and_then(|domain| domain.rfind('.').and_then(|idx| domain[..idx].into()))
         .unwrap_or("App Name")
+        .to_owned()
         .into()
 }
 

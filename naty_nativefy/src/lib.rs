@@ -104,12 +104,7 @@ async fn setup_executable(
         platform = std::env::consts::OS;
     }
 
-    let url: url::Url = target_url.try_into().unwrap_or_else(|err| {
-        println!("Error parsing the url: {err}");
-        std::process::exit(1)
-    });
-
-    let name = naty_common::get_webpage_name(name, &url);
+    let name = naty_common::get_webpage_name(name, target_url);
     let out_dir_name = format!("{}-{platform}", &name);
     let output_dir = output_dir.join(&out_dir_name);
     std::fs::create_dir_all(&output_dir).expect("Could not create directory");

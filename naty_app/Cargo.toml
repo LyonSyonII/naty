@@ -10,9 +10,10 @@ documentation = "https://github.com/LyonSyonII/naty"
 
 [dependencies]
 naty_common = { version = "0.3.8", path = "../naty_common" }
-wry = "0.27.0"
-image = { version = "0.24.5", default_features = false, features = ["ico"] }
-toml = "0.7.3"
+wry = "0.40.1"
+image = { version = "0.25.1", default-features = false, features = ["ico"] }
+toml = "0.8.14"
+tao = "0.28.0"
 
 [profile.release]
 strip = true

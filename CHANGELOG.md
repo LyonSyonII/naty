@@ -1,16 +1,11 @@
-##############
-#   0.3.9    #
-##############
+# 0.3.9
 - `command` will now be killed when application is closed
 
-##############
-#   0.3.3    #
-##############
+# 0.3.3
 - Removed wrongly imported `platform::unix::WindowBuilderExtUnix` 
 
-##############
-#   0.3.1    #
-##############
+
+# 0.3.1
 - Fixed binary downloads when the file already exists
 - Fixed window freezes in certain occasions
 - Added `hide_taskbar_icon` option
