@@ -48,11 +48,11 @@ async fn download_webpage_icon(
     url: impl AsRef<str>,
     output_dir: impl AsRef<Path>,
 ) -> std::io::Result<()> {
+    
     let output_dir = output_dir.as_ref().to_owned();
     let url = url.as_ref();
-
-    let mut icons = site_icons::SiteIcons::new();
-    let entries = icons
+    
+    let entries = site_icons::SiteIcons::new()
         .load_website(url, false)
         .await
         .unwrap_or_else(|_| Vec::new());
